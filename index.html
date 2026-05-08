@@ -586,7 +586,83 @@
   }
   footer p { font-size: 0.7rem; letter-spacing: 0.1em; }
 
-  /* ── SCROLL REVEAL ── */
+  /* ── MOBILE ── */
+  @media (max-width: 768px) {
+
+    /* Nav */
+    nav { padding: 1rem 1.5rem; }
+    .nav-links {
+      display: none;
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(28,13,13,0.98);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2.5rem;
+      z-index: 200;
+    }
+    .nav-links.open { display: flex; }
+    .nav-links a { font-size: 1rem; letter-spacing: 0.2em; }
+    .nav-book { display: none; }
+    .hamburger {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      z-index: 300;
+      background: none;
+      border: none;
+      padding: 4px;
+    }
+    .hamburger span {
+      display: block;
+      width: 24px; height: 2px;
+      background: var(--gold);
+      transition: all 0.3s;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* Hero */
+    .hero { padding-top: 10vh; min-height: 100vh; }
+    .hero-quickbook { margin-top: 2rem; }
+
+    /* Sections */
+    section { padding: 4rem 1.5rem; }
+
+    /* About */
+    .about { grid-template-columns: 1fr; gap: 2.5rem; }
+    .about-img { max-height: 320px; }
+    .about-stats { grid-template-columns: 1fr 1fr; }
+
+    /* Wines */
+    .wines-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+
+    /* Rooms */
+    .rooms-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
+    .room-card:first-child { grid-row: span 1; }
+    .room-img { min-height: 220px; }
+
+    /* Experience */
+    .experience-inner { grid-template-columns: 1fr; gap: 2rem; }
+    .experience-visual { grid-template-columns: 1fr 1fr; }
+    .experience-visual img:first-child { grid-column: span 2; }
+
+    /* Testimonials */
+    .testi-grid { grid-template-columns: 1fr; gap: 1.2rem; }
+
+    /* Contact */
+    .contact { grid-template-columns: 1fr; gap: 3rem; }
+    .form-row { grid-template-columns: 1fr; }
+
+    /* Footer */
+    footer { flex-direction: column; gap: 1rem; text-align: center; padding: 2rem 1.5rem; }
+  }
+
+  @media (min-width: 769px) {
+    .hamburger { display: none; }
+  }
   .reveal { opacity: 0; transform: translateY(25px); transition: opacity 0.8s ease, transform 0.8s ease; }
   .reveal.visible { opacity: 1; transform: translateY(0); }
 </style>
@@ -594,15 +670,18 @@
 <body>
 
 <nav>
-  <a href="#" class="nav-logo">Rodriguez <span>Hotels</span></a>
-  <ul class="nav-links">
-    <li><a href="#about">Über uns</a></li>
-    <li><a href="#weine">Weine</a></li>
-    <li><a href="#zimmer">Zimmer</a></li>
-    <li><a href="#erlebnisse">Erlebnisse</a></li>
-    <li><a href="#kontakt">Kontakt</a></li>
+  <a href="#start" class="nav-logo">Rodriguez <span>Hotels</span></a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#about" onclick="closeNav()">Über uns</a></li>
+    <li><a href="#weine" onclick="closeNav()">Weine</a></li>
+    <li><a href="#zimmer" onclick="closeNav()">Zimmer</a></li>
+    <li><a href="#erlebnisse" onclick="closeNav()">Erlebnisse</a></li>
+    <li><a href="#kontakt" onclick="closeNav()">Kontakt</a></li>
   </ul>
   <button class="nav-book d21-trigger-ibe">Jetzt buchen</button>
+  <button class="hamburger" id="hamburger" onclick="toggleNav()" aria-label="Menü">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
 
 <!-- HERO -->
@@ -882,6 +961,17 @@
 </footer>
 
 <script>
+  function toggleNav() {
+    const nav = document.getElementById('navLinks');
+    const btn = document.getElementById('hamburger');
+    nav.classList.toggle('open');
+    btn.classList.toggle('open');
+  }
+  function closeNav() {
+    document.getElementById('navLinks').classList.remove('open');
+    document.getElementById('hamburger').classList.remove('open');
+  }
+
   const reveals = document.querySelectorAll('.reveal');
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
