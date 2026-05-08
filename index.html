@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rodriguez Hotels — Weinhotel</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<!-- DIRS21 Buchungssystem -->
+<script src="https://js-sdk.dirs21.de/f9f04bfe-b50b-47dc-95ff-a331070933db" type="text/javascript" async></script>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --wine:   #5C1A2E;
+    --wine-d: #3A0F1C;
+    --wine-l: #8B2A47;
+    --gold:   #C9A84C;
+    --gold-l: #E8C97A;
+    --cream:  #F8F3EC;
+    --cream-d:#EDE4D6;
+    --dark:   #1C0D0D;
+    --text:   #2E1A1A;
+    --muted:  #7A5C5C;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Jost', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  /* ── HERO QUICKBOOK ── */
+  .hero-quickbook {
+    margin-top: 3.5rem;
+    width: 100%;
+    max-width: 860px;
+  }
+  .hero-quickbook .d21-quickbook {
+    width: 100%;
+  }
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.2rem 4rem;
+    background: rgba(28,13,13,0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(201,168,76,0.2);
+  }
+  .nav-logo {
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.22em;
+    color: var(--gold);
+    text-decoration: none;
+  }
+  .nav-logo span { color: #fff; }
+  .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+  .nav-links a {
+    font-size: 0.75rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .nav-links a:hover { color: var(--gold); }
+  .nav-book {
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--dark);
+    background: var(--gold);
+    padding: 0.55rem 1.6rem;
+    border: none;
+    cursor: pointer;
+    font-family: 'Jost', sans-serif;
+    font-weight: 500;
+    transition: background 0.3s;
+  }
+  .nav-book:hover { background: var(--gold-l); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 130vh;
+    position: relative;
+    display: flex; align-items: flex-start; justify-content: center;
+    overflow: visible;
+    padding-top: 6vh;
+    padding-bottom: 4rem;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background: 
+      linear-gradient(160deg, rgba(92,26,46,0.7) 0%, rgba(28,13,13,0.85) 60%),
+      url('https://images.unsplash.com/photo-1506377585622-bedcbb027afc?w=1600&q=80') center/cover no-repeat;
+  }
+  .hero-bg::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 70% 50%, rgba(201,168,76,0.08) 0%, transparent 65%);
+  }
+  .hero-content {
+    position: relative;
+    text-align: center;
+    padding: 0 2rem;
+    animation: heroFade 1.6s ease forwards;
+  }
+  @keyframes heroFade {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .hero-eyebrow {
+    font-family: 'Jost', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.2rem;
+  }
+  .hero-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(3rem, 7vw, 6rem);
+    font-weight: 400;
+    color: #fff;
+    line-height: 1.05;
+    margin-bottom: 0.4rem;
+  }
+  .hero-title em {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    color: var(--gold-l);
+    font-size: 1.15em;
+  }
+  .hero-sub {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+    font-style: italic;
+    color: rgba(255,255,255,0.65);
+    margin-bottom: 2.8rem;
+    font-weight: 300;
+  }
+  .hero-cta {
+    display: inline-flex; gap: 1.2rem; flex-wrap: wrap; justify-content: center;
+  }
+  .btn-primary {
+    font-family: 'Jost', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--dark);
+    background: var(--gold);
+    padding: 1rem 2.8rem;
+    text-decoration: none;
+    border: 2px solid var(--gold);
+    transition: all 0.3s;
+    font-weight: 500;
+  }
+  .btn-primary:hover { background: transparent; color: var(--gold); }
+  .btn-outline {
+    font-family: 'Jost', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #fff;
+    background: transparent;
+    padding: 1rem 2.8rem;
+    text-decoration: none;
+    border: 2px solid rgba(255,255,255,0.45);
+    transition: all 0.3s;
+    font-weight: 400;
+  }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+  .hero-scroll {
+    position: absolute; bottom: 2.5rem; left: 50%;
+    transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+    color: rgba(255,255,255,0.45);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    animation: scrollPulse 2.5s ease-in-out infinite;
+  }
+  .hero-scroll::after {
+    content: '';
+    width: 1px; height: 50px;
+    background: linear-gradient(to bottom, rgba(201,168,76,0.7), transparent);
+  }
+  @keyframes scrollPulse {
+    0%,100% { opacity: 0.45; } 50% { opacity: 1; }
+  }
+
+  /* ── SECTION BASE ── */
+  section { padding: 7rem 4rem; }
+  .section-eyebrow {
+    font-size: 0.68rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.8rem;
+  }
+  .section-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 400;
+    line-height: 1.15;
+    color: var(--wine-d);
+  }
+  .section-title em {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    color: var(--wine);
+  }
+  .divider {
+    width: 60px; height: 2px;
+    background: linear-gradient(to right, var(--gold), transparent);
+    margin: 1.5rem 0 2.5rem;
+  }
+
+  /* ── ABOUT ── */
+  .about {
+    background: var(--dark);
+    color: #fff;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: center;
+  }
+  .about .section-title { color: #fff; }
+  .about .section-title em { color: var(--gold-l); }
+  .about p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem;
+    line-height: 1.85;
+    color: rgba(255,255,255,0.72);
+    font-weight: 300;
+    margin-bottom: 1.2rem;
+  }
+  .about-img {
+    position: relative;
+    aspect-ratio: 3/4;
+    overflow: hidden;
+  }
+  .about-img img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: sepia(20%) contrast(1.05);
+  }
+  .about-img::before {
+    content: '';
+    position: absolute; top: -1.5rem; left: -1.5rem; right: 1.5rem; bottom: 1.5rem;
+    border: 1px solid rgba(201,168,76,0.3);
+    z-index: 0;
+    pointer-events: none;
+  }
+  .about-stats {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1.5rem; margin-top: 2.5rem;
+  }
+  .stat {
+    border-left: 2px solid var(--gold);
+    padding-left: 1.2rem;
+  }
+  .stat-num {
+    font-family: 'Cinzel', serif;
+    font-size: 2.2rem;
+    color: var(--gold);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    margin-top: 0.3rem;
+  }
+
+  /* ── WINES ── */
+  .wines { background: var(--cream); }
+  .wines-header { text-align: center; margin-bottom: 4rem; }
+  .wines-header .divider { margin-left: auto; margin-right: auto; }
+  .wines-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .wine-card {
+    background: #fff;
+    overflow: hidden;
+    border: 1px solid var(--cream-d);
+    transition: transform 0.4s, box-shadow 0.4s;
+  }
+  .wine-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 60px rgba(92,26,46,0.12);
+  }
+  .wine-img {
+    height: 260px;
+    overflow: hidden;
+  }
+  .wine-img img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s;
+    filter: sepia(15%);
+  }
+  .wine-card:hover .wine-img img { transform: scale(1.05); }
+  .wine-body { padding: 2rem; }
+  .wine-region {
+    font-size: 0.62rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+  }
+  .wine-name {
+    font-family: 'Cinzel', serif;
+    font-size: 1.25rem;
+    color: var(--wine-d);
+    margin-bottom: 0.8rem;
+    line-height: 1.2;
+  }
+  .wine-desc {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    color: var(--muted);
+    line-height: 1.75;
+    font-weight: 400;
+  }
+  .wine-price {
+    margin-top: 1.5rem;
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    color: var(--wine);
+    letter-spacing: 0.05em;
+  }
+
+  /* ── ROOMS ── */
+  .rooms {
+    background: var(--wine-d);
+    color: #fff;
+  }
+  .rooms .section-title { color: #fff; }
+  .rooms .section-title em { color: var(--gold-l); }
+  .rooms-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 1.5rem;
+    margin-top: 3rem;
+    max-width: 1200px;
+  }
+  .room-card {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .room-card:first-child { grid-row: span 2; }
+  .room-img {
+    width: 100%; height: 100%;
+    min-height: 250px;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.6s;
+    filter: brightness(0.85);
+  }
+  .room-card:hover .room-img { transform: scale(1.04); }
+  .room-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(28,13,13,0.85) 0%, transparent 50%);
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 2rem;
+  }
+  .room-name {
+    font-family: 'Cinzel', serif;
+    font-size: 1.3rem;
+    color: #fff;
+    margin-bottom: 0.3rem;
+  }
+  .room-info {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1rem;
+    color: rgba(255,255,255,0.65);
+    font-style: italic;
+  }
+
+  /* ── EXPERIENCE ── */
+  .experience { background: var(--cream-d); }
+  .experience-inner {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 5rem;
+    align-items: start;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .experience-list { margin-top: 1rem; }
+  .exp-item {
+    display: flex; gap: 1.5rem; align-items: flex-start;
+    padding: 2rem 0;
+    border-bottom: 1px solid rgba(92,26,46,0.12);
+  }
+  .exp-item:last-child { border-bottom: none; }
+  .exp-num {
+    font-family: 'Cinzel', serif;
+    font-size: 1.8rem;
+    color: var(--cream-d);
+    -webkit-text-stroke: 1px var(--gold);
+    line-height: 1;
+    min-width: 2rem;
+    text-align: center;
+  }
+  .exp-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    color: var(--wine-d);
+    margin-bottom: 0.4rem;
+  }
+  .exp-desc {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    color: var(--muted);
+    line-height: 1.75;
+  }
+  .experience-visual {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  .experience-visual img {
+    width: 100%; aspect-ratio: 1;
+    object-fit: cover;
+    filter: sepia(10%) contrast(1.05);
+  }
+  .experience-visual img:first-child {
+    grid-column: span 2;
+    aspect-ratio: 16/9;
+  }
+
+  /* ── TESTIMONIALS ── */
+  .testimonials {
+    background: var(--dark);
+    text-align: center;
+    color: #fff;
+  }
+  .testimonials .section-title { color: #fff; }
+  .testimonials .section-title em { color: var(--gold-l); }
+  .testimonials .divider { margin-left: auto; margin-right: auto; }
+  .testi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-top: 3rem;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .testi-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,168,76,0.18);
+    padding: 2.5rem 2rem;
+    text-align: left;
+  }
+  .testi-stars {
+    color: var(--gold);
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
+    margin-bottom: 1.2rem;
+  }
+  .testi-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem;
+    font-style: italic;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+  }
+  .testi-author {
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .testi-from {
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.35);
+    margin-top: 0.2rem;
+    letter-spacing: 0.1em;
+  }
+
+  /* ── CONTACT ── */
+  .contact {
+    background: var(--cream);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: start;
+  }
+  .contact-form { display: flex; flex-direction: column; gap: 1.2rem; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
+  .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+  .form-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .form-input, .form-select, .form-textarea {
+    font-family: 'Jost', sans-serif;
+    font-size: 0.9rem;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--cream-d);
+    padding: 0.7rem 0;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.3s;
+    width: 100%;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--wine);
+  }
+  .form-textarea { resize: vertical; min-height: 100px; }
+  .btn-submit {
+    font-family: 'Jost', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #fff;
+    background: var(--wine);
+    padding: 1rem 3rem;
+    border: 2px solid var(--wine);
+    cursor: pointer;
+    align-self: flex-start;
+    font-weight: 500;
+    transition: all 0.3s;
+    margin-top: 0.5rem;
+  }
+  .btn-submit:hover { background: var(--wine-d); border-color: var(--wine-d); }
+  .contact-info { padding-top: 0.5rem; }
+  .contact-info p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem;
+    color: var(--muted);
+    line-height: 1.9;
+    margin-bottom: 2rem;
+  }
+  .contact-details { display: flex; flex-direction: column; gap: 1rem; }
+  .contact-detail {
+    display: flex; gap: 1rem; align-items: baseline;
+  }
+  .cd-label {
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    min-width: 5rem;
+  }
+  .cd-val {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    color: var(--text);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--dark);
+    color: rgba(255,255,255,0.35);
+    padding: 3rem 4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(201,168,76,0.15);
+  }
+  .footer-logo {
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    text-decoration: none;
+  }
+  footer p { font-size: 0.7rem; letter-spacing: 0.1em; }
+
+  /* ── SCROLL REVEAL ── */
+  .reveal { opacity: 0; transform: translateY(25px); transition: opacity 0.8s ease, transform 0.8s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="nav-logo">Rodriguez <span>Hotels</span></a>
+  <ul class="nav-links">
+    <li><a href="#about">Über uns</a></li>
+    <li><a href="#weine">Weine</a></li>
+    <li><a href="#zimmer">Zimmer</a></li>
+    <li><a href="#erlebnisse">Erlebnisse</a></li>
+    <li><a href="#kontakt">Kontakt</a></li>
+  </ul>
+  <button class="nav-book d21-trigger-ibe">Jetzt buchen</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="start">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <p class="hero-eyebrow">Willkommen im Herz der Weinberge</p>
+    <h1 class="hero-title">Rodriguez<br><em>Hotels</em></h1>
+    <p class="hero-sub">Wo Wein, Stille und Eleganz eine Seele finden</p>
+    <div class="hero-cta">
+      <a href="#weine" class="btn-outline">Weinauswahl entdecken</a>
+    </div>
+    <div class="hero-quickbook">
+      <div class="d21-quickbook"></div>
+    </div>
+  </div>
+  <div class="hero-scroll">Entdecken</div>
+</section>
+
+<!-- ABOUT -->
+<section class="about" id="about">
+  <div class="reveal">
+    <p class="section-eyebrow">Unsere Geschichte</p>
+    <h2 class="section-title">Ein Ort, so alt<br>wie der <em>Wein</em> selbst</h2>
+    <div class="divider"></div>
+    <p>Das Rodriguez Hotel liegt inmitten handgepflegter Weinberge, wo jede Rebe eine Geschichte trägt. Seit drei Generationen empfangen wir Gäste, die nicht nur Urlaub, sondern eine Verwandlung suchen.</p>
+    <p>Unser Keller beherbergt über 400 handverlesene Weine aus den bedeutendsten Regionen der Welt. Das Restaurant serviert Gerichte, die die Ernte des Tages feiern.</p>
+    <div class="about-stats">
+      <div class="stat">
+        <div class="stat-num">1972</div>
+        <div class="stat-label">Gegründet</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">400+</div>
+        <div class="stat-label">Weinselektionen</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">28</div>
+        <div class="stat-label">Exklusive Zimmer</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">5★</div>
+        <div class="stat-label">Auszeichnungen</div>
+      </div>
+    </div>
+  </div>
+  <div class="about-img reveal">
+    <img src="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=800&q=80" alt="Weinberge des Rodriguez Hotels">
+  </div>
+</section>
+
+<!-- WINES -->
+<section class="wines" id="weine">
+  <div class="wines-header reveal">
+    <p class="section-eyebrow">Unsere Weinauswahl</p>
+    <h2 class="section-title">Vom Berg in <em>Ihr Glas</em></h2>
+    <div class="divider"></div>
+  </div>
+  <div class="wines-grid">
+    <div class="wine-card reveal">
+      <div class="wine-img">
+        <img src="https://images.unsplash.com/photo-1474722883778-792e7990302f?w=600&q=80" alt="Rotwein">
+      </div>
+      <div class="wine-body">
+        <p class="wine-region">Rioja, Spanien</p>
+        <h3 class="wine-name">Gran Reserva Rodriguez</h3>
+        <p class="wine-desc">Tief rubinrot, mit Noten von dunklen Kirschen, gerösteter Vanille und einem Hauch Leder. Ein Wein, der Zeit braucht – und sie wert ist.</p>
+        <p class="wine-price">ab € 18 / Glas</p>
+      </div>
+    </div>
+    <div class="wine-card reveal">
+      <div class="wine-img">
+        <img src="https://images.unsplash.com/photo-1566552881560-0be862a7c445?w=600&q=80" alt="Weißwein">
+      </div>
+      <div class="wine-body">
+        <p class="wine-region">Burgund, Frankreich</p>
+        <h3 class="wine-name">Cuvée Blanc de Lumière</h3>
+        <p class="wine-desc">Mineralisch, frisch, mit zarten Noten von weißem Pfirsich und Akazienblüte. Ideal zum Aperitif oder zu feinem Fisch.</p>
+        <p class="wine-price">ab € 15 / Glas</p>
+      </div>
+    </div>
+    <div class="wine-card reveal">
+      <div class="wine-img">
+        <img src="https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?w=600&q=80" alt="Rosé">
+      </div>
+      <div class="wine-body">
+        <p class="wine-region">Provence, Frankreich</p>
+        <h3 class="wine-name">Rosé de la Terrasse</h3>
+        <p class="wine-desc">Zartlachsfarben, mit Erdbeer- und Grapefruitnoten. Leicht, elegant und perfekt für laue Sommerabende auf unserer Terrasse.</p>
+        <p class="wine-price">ab € 14 / Glas</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROOMS -->
+<section class="rooms" id="zimmer">
+  <div class="reveal">
+    <p class="section-eyebrow">Unterkunft</p>
+    <h2 class="section-title">Zimmer & <em>Suiten</em></h2>
+    <div class="divider"></div>
+  </div>
+  <div class="rooms-grid reveal">
+    <div class="room-card">
+      <img class="room-img" src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=900&q=80" alt="Grand Suite">
+      <div class="room-overlay">
+        <p class="room-name">La Grand Suite</p>
+        <p class="room-info">Panoramablick auf die Weinberge · 85 m²</p>
+      </div>
+    </div>
+    <div class="room-card">
+      <img class="room-img" src="https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=600&q=80" alt="Deluxe Zimmer">
+      <div class="room-overlay">
+        <p class="room-name">Deluxe Zimmer</p>
+        <p class="room-info">Balkon mit Gartenblick · 45 m²</p>
+      </div>
+    </div>
+    <div class="room-card">
+      <img class="room-img" src="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=600&q=80" alt="Cave Suite">
+      <div class="room-overlay">
+        <p class="room-name">Cave Suite</p>
+        <p class="room-info">Im historischen Gewölbe · 60 m²</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section class="experience" id="erlebnisse">
+  <div class="experience-inner">
+    <div>
+      <p class="section-eyebrow reveal">Erlebnisse</p>
+      <h2 class="section-title reveal">Mehr als ein<br><em>Aufenthalt</em></h2>
+      <div class="divider reveal"></div>
+      <div class="experience-list">
+        <div class="exp-item reveal">
+          <div class="exp-num">01</div>
+          <div>
+            <p class="exp-title">Private Weinverkostungen</p>
+            <p class="exp-desc">Unser Sommelier führt Sie durch eine kuratierte Auswahl von Tropfen aus unserem Keller – in der Stille des Gewölbes, bei Kerzenlicht.</p>
+          </div>
+        </div>
+        <div class="exp-item reveal">
+          <div class="exp-num">02</div>
+          <div>
+            <p class="exp-title">Weinberg-Spaziergänge</p>
+            <p class="exp-desc">Erleben Sie die Reben aus nächster Nähe: von der Ernte bis zur Kelter. Jede Jahreszeit bietet ein anderes Bild.</p>
+          </div>
+        </div>
+        <div class="exp-item reveal">
+          <div class="exp-num">03</div>
+          <div>
+            <p class="exp-title">Chef's Table</p>
+            <p class="exp-desc">Ein exklusives Mehrgangmenü direkt an der Seite unseres Küchenchefs – mit perfekt abgestimmten Weinbegleitungen.</p>
+          </div>
+        </div>
+        <div class="exp-item reveal">
+          <div class="exp-num">04</div>
+          <div>
+            <p class="exp-title">Spa & Weinbad</p>
+            <p class="exp-desc">Die Trauben der Region sind nicht nur für den Gaumen: Erleben Sie unsere Vinotherapie-Behandlungen für Haut und Seele.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="experience-visual reveal">
+      <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80" alt="Restaurant">
+      <img src="https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?w=500&q=80" alt="Weinberg">
+      <img src="https://images.unsplash.com/photo-1519671282429-b44e83cf4ac1?w=500&q=80" alt="Spa">
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials">
+  <p class="section-eyebrow reveal">Gästestimmen</p>
+  <h2 class="section-title reveal">Was unsere Gäste <em>sagen</em></h2>
+  <div class="divider reveal"></div>
+  <div class="testi-grid">
+    <div class="testi-card reveal">
+      <p class="testi-stars">★★★★★</p>
+      <p class="testi-text">„Ein Aufenthalt, der alle Sinne verwöhnt. Die Weinverkostung mit dem Sommelier war das Highlight unserer Reise. Wir kommen sicher wieder."</p>
+      <p class="testi-author">Marie & Thomas K.</p>
+      <p class="testi-from">Hamburg, Deutschland</p>
+    </div>
+    <div class="testi-card reveal">
+      <p class="testi-stars">★★★★★</p>
+      <p class="testi-text">„Die Cave Suite ist ein Traum. Ruhig, atmosphärisch, mit einem Weinkeller direkt nebenan. Perfekter Rückzugsort für eine romantische Auszeit."</p>
+      <p class="testi-author">Isabelle M.</p>
+      <p class="testi-from">Lyon, Frankreich</p>
+    </div>
+    <div class="testi-card reveal">
+      <p class="testi-stars">★★★★★</p>
+      <p class="testi-text">„Das Restaurant übertrifft alles, was ich in der Region kenne. Das Menü mit Weinbegleitung war ein echtes Kunstwerk. Danke, Rodriguez Hotels!"</p>
+      <p class="testi-author">Marco R.</p>
+      <p class="testi-from">Mailand, Italien</p>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="kontakt">
+  <div class="reveal">
+    <p class="section-eyebrow">Reservierung & Anfragen</p>
+    <h2 class="section-title">Ihr Aufenthalt<br>beginnt <em>hier</em></h2>
+    <div class="divider"></div>
+    <div class="contact-info">
+      <p>Wir freuen uns auf Ihre Nachricht. Unser Team antwortet innerhalb von 24 Stunden und gestaltet gerne einen unvergesslichen Aufenthalt für Sie.</p>
+      <div class="contact-details">
+        <div class="contact-detail">
+          <span class="cd-label">Adresse</span>
+          <span class="cd-val">Weinbergstraße 1, 55218 Ingelheim am Rhein</span>
+        </div>
+        <div class="contact-detail">
+          <span class="cd-label">Telefon</span>
+          <span class="cd-val">+49 6132 99 44 00</span>
+        </div>
+        <div class="contact-detail">
+          <span class="cd-label">E-Mail</span>
+          <span class="cd-val">info@rodriguez-hotels.de</span>
+        </div>
+        <div class="contact-detail">
+          <span class="cd-label">Check-in</span>
+          <span class="cd-val">ab 15:00 Uhr · Abreise bis 12:00 Uhr</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="reveal">
+    <form class="contact-form" onsubmit="handleSubmit(event)">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="fname">Vorname</label>
+          <input class="form-input" type="text" id="fname" placeholder="Maria">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="lname">Nachname</label>
+          <input class="form-input" type="text" id="lname" placeholder="Müller">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="email">E-Mail</label>
+        <input class="form-input" type="email" id="email" placeholder="ihre@email.de">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="checkin">Anreise</label>
+          <input class="form-input" type="date" id="checkin">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="checkout">Abreise</label>
+          <input class="form-input" type="date" id="checkout">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="zimmer">Zimmertyp</label>
+        <select class="form-select" id="zimmer">
+          <option value="">Bitte wählen …</option>
+          <option>Deluxe Zimmer</option>
+          <option>Cave Suite</option>
+          <option>La Grand Suite</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="msg">Ihre Nachricht</label>
+        <textarea class="form-textarea" id="msg" placeholder="Besondere Wünsche, Anliegen …"></textarea>
+      </div>
+      <button type="submit" class="btn-submit">Anfrage senden</button>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <a href="#start" class="footer-logo">Rodriguez Hotels</a>
+  <p>© 2025 Rodriguez Hotels · Alle Rechte vorbehalten</p>
+  <p>Impressum · Datenschutz</p>
+</footer>
+
+<script>
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+  }, { threshold: 0.12 });
+  reveals.forEach(r => observer.observe(r));
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    const btn = e.target.querySelector('.btn-submit');
+    btn.textContent = 'Anfrage gesendet ✓';
+    btn.style.background = '#2E6B3E';
+    btn.style.borderColor = '#2E6B3E';
+    btn.disabled = true;
+  }
+</script>
+</body>
+</html>
