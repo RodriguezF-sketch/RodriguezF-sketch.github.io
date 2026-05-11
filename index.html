@@ -586,6 +586,22 @@
   }
   footer p { font-size: 0.7rem; letter-spacing: 0.1em; }
 
+  /* ── TESTBANNER ── */
+  .test-banner {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 999;
+    background: var(--wine-d);
+    border-top: 1px solid rgba(201,168,76,0.4);
+    color: rgba(255,255,255,0.85);
+    font-family: 'Jost', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-align: center;
+    padding: 0.65rem 2rem;
+  }
+  .test-banner strong { color: var(--gold); }
+
   /* ── MOBILE ── */
   @media (max-width: 768px) {
 
@@ -684,7 +700,10 @@
   </button>
 </nav>
 
-<!-- HERO -->
+<!-- TESTHINWEIS -->
+<div class="test-banner">
+  <strong>Testwebsite</strong> — Diese Seite befindet sich im Testbetrieb. Es können keine echten Buchungen vorgenommen werden.
+</div>
 <section class="hero" id="start">
   <div class="hero-bg"></div>
   <div class="hero-content">
