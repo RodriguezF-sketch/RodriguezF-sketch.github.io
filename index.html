@@ -1,1010 +1,1214 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rodriguez Hotels — Weinhotel</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
-<!-- DIRS21 Buchungssystem -->
-<script src="https://js-sdk.dirs21.de/f9f04bfe-b50b-47dc-95ff-a331070933db" type="text/javascript" async></script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>3rd Level Ticket Builder v4</title>
 <style>
-  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#111;color:#e0e0e0;height:100vh;display:flex;flex-direction:column;overflow:hidden}
 
-  :root {
-    --wine:   #5C1A2E;
-    --wine-d: #3A0F1C;
-    --wine-l: #8B2A47;
-    --gold:   #C9A84C;
-    --gold-l: #E8C97A;
-    --cream:  #F8F3EC;
-    --cream-d:#EDE4D6;
-    --dark:   #1C0D0D;
-    --text:   #2E1A1A;
-    --muted:  #7A5C5C;
-  }
+/* Topbar */
+.topbar{background:#0d0d0d;border-bottom:1px solid #2a2a2a;padding:8px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0;flex-wrap:wrap}
+.topbar h1{font-size:14px;font-weight:700;color:#fff;letter-spacing:.01em;white-space:nowrap}
+.topbar-divider{width:1px;height:20px;background:#2a2a2a}
+.btn-autofill{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;padding:7px 16px;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:600;white-space:nowrap;transition:opacity .15s}
+.btn-autofill:hover{opacity:.85}
+.btn-autofill:disabled{opacity:.4;cursor:not-allowed}
+#fill-status{font-size:11px;color:#4ade80;white-space:nowrap}
+#fill-error{font-size:11px;color:#f87171;white-space:nowrap}
 
-  html { scroll-behavior: smooth; }
+/* Split layout */
+.split{display:flex;flex:1;overflow:hidden}
 
-  body {
-    font-family: 'Jost', sans-serif;
-    background: var(--cream);
-    color: var(--text);
-    overflow-x: hidden;
-  }
+/* Left panel */
+.left{width:36%;min-width:260px;border-right:1px solid #2a2a2a;display:flex;flex-direction:column;background:#0f0f0f}
+.panel-label{padding:8px 14px;font-size:10px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid #1e1e1e;flex-shrink:0;display:flex;justify-content:space-between;align-items:center}
+.panel-label span{color:#4ade80;cursor:pointer;font-size:10px}
+.panel-label span:hover{color:#86efac}
+#ref-ticket{flex:1;width:100%;resize:none;font-size:12px;padding:12px 14px;border:none;background:#0f0f0f;color:#bbb;font-family:inherit;line-height:1.75;outline:none}
+#ref-ticket::placeholder{color:#383838}
 
-  /* ── HERO QUICKBOOK ── */
-  .hero-quickbook {
-    margin-top: 3.5rem;
-    width: 100%;
-    max-width: 860px;
-  }
-  .hero-quickbook .d21-quickbook {
-    width: 100%;
-  }
-  /* ── NAV ── */
-  nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 1.2rem 4rem;
-    background: rgba(28,13,13,0.92);
-    backdrop-filter: blur(8px);
-    border-bottom: 1px solid rgba(201,168,76,0.2);
-  }
-  .nav-logo {
-    font-family: 'Cinzel', serif;
-    font-size: 1.1rem;
-    letter-spacing: 0.22em;
-    color: var(--gold);
-    text-decoration: none;
-  }
-  .nav-logo span { color: #fff; }
-  .nav-links { display: flex; gap: 2.5rem; list-style: none; }
-  .nav-links a {
-    font-size: 0.75rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.7);
-    text-decoration: none;
-    transition: color 0.3s;
-  }
-  .nav-links a:hover { color: var(--gold); }
-  .nav-book {
-    font-size: 0.72rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--dark);
-    background: var(--gold);
-    padding: 0.55rem 1.6rem;
-    border: none;
-    cursor: pointer;
-    font-family: 'Jost', sans-serif;
-    font-weight: 500;
-    transition: background 0.3s;
-  }
-  .nav-book:hover { background: var(--gold-l); }
+/* Right panel */
+.right{flex:1;display:flex;flex-direction:column;overflow:hidden}
 
-  /* ── HERO ── */
-  .hero {
-    min-height: 130vh;
-    position: relative;
-    display: flex; align-items: flex-start; justify-content: center;
-    overflow: visible;
-    padding-top: 6vh;
-    padding-bottom: 4rem;
-  }
-  .hero-bg {
-    position: absolute; inset: 0;
-    background: 
-      linear-gradient(160deg, rgba(92,26,46,0.7) 0%, rgba(28,13,13,0.85) 60%),
-      url('https://images.unsplash.com/photo-1506377585622-bedcbb027afc?w=1600&q=80') center/cover no-repeat;
-  }
-  .hero-bg::after {
-    content: '';
-    position: absolute; inset: 0;
-    background: radial-gradient(ellipse at 70% 50%, rgba(201,168,76,0.08) 0%, transparent 65%);
-  }
-  .hero-content {
-    position: relative;
-    text-align: center;
-    padding: 0 2rem;
-    animation: heroFade 1.6s ease forwards;
-  }
-  @keyframes heroFade {
-    from { opacity: 0; transform: translateY(30px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .hero-eyebrow {
-    font-family: 'Jost', sans-serif;
-    font-size: 0.72rem;
-    letter-spacing: 0.35em;
-    text-transform: uppercase;
-    color: var(--gold);
-    margin-bottom: 1.2rem;
-  }
-  .hero-title {
-    font-family: 'Cinzel', serif;
-    font-size: clamp(3rem, 7vw, 6rem);
-    font-weight: 400;
-    color: #fff;
-    line-height: 1.05;
-    margin-bottom: 0.4rem;
-  }
-  .hero-title em {
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-    color: var(--gold-l);
-    font-size: 1.15em;
-  }
-  .hero-sub {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(1.1rem, 2.5vw, 1.5rem);
-    font-style: italic;
-    color: rgba(255,255,255,0.65);
-    margin-bottom: 2.8rem;
-    font-weight: 300;
-  }
-  .hero-cta {
-    display: inline-flex; gap: 1.2rem; flex-wrap: wrap; justify-content: center;
-  }
-  .btn-primary {
-    font-family: 'Jost', sans-serif;
-    font-size: 0.72rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--dark);
-    background: var(--gold);
-    padding: 1rem 2.8rem;
-    text-decoration: none;
-    border: 2px solid var(--gold);
-    transition: all 0.3s;
-    font-weight: 500;
-  }
-  .btn-primary:hover { background: transparent; color: var(--gold); }
-  .btn-outline {
-    font-family: 'Jost', sans-serif;
-    font-size: 0.72rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: #fff;
-    background: transparent;
-    padding: 1rem 2.8rem;
-    text-decoration: none;
-    border: 2px solid rgba(255,255,255,0.45);
-    transition: all 0.3s;
-    font-weight: 400;
-  }
-  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
-  .hero-scroll {
-    position: absolute; bottom: 2.5rem; left: 50%;
-    transform: translateX(-50%);
-    display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
-    color: rgba(255,255,255,0.45);
-    font-size: 0.65rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    animation: scrollPulse 2.5s ease-in-out infinite;
-  }
-  .hero-scroll::after {
-    content: '';
-    width: 1px; height: 50px;
-    background: linear-gradient(to bottom, rgba(201,168,76,0.7), transparent);
-  }
-  @keyframes scrollPulse {
-    0%,100% { opacity: 0.45; } 50% { opacity: 1; }
-  }
+/* Tabs */
+.tabs{display:flex;gap:0;border-bottom:1px solid #2a2a2a;overflow-x:auto;background:#0d0d0d;flex-shrink:0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:9px 14px;font-size:11.5px;border:none;border-bottom:2px solid transparent;cursor:pointer;color:#555;background:transparent;font-family:inherit;white-space:nowrap;transition:color .1s}
+.tab:hover{color:#aaa}
+.tab.active{color:#fff;border-bottom-color:#6366f1;font-weight:600}
 
-  /* ── SECTION BASE ── */
-  section { padding: 7rem 4rem; }
-  .section-eyebrow {
-    font-size: 0.68rem;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    color: var(--gold);
-    margin-bottom: 0.8rem;
-  }
-  .section-title {
-    font-family: 'Cinzel', serif;
-    font-size: clamp(2rem, 4vw, 3rem);
-    font-weight: 400;
-    line-height: 1.15;
-    color: var(--wine-d);
-  }
-  .section-title em {
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-    color: var(--wine);
-  }
-  .divider {
-    width: 60px; height: 2px;
-    background: linear-gradient(to right, var(--gold), transparent);
-    margin: 1.5rem 0 2.5rem;
-  }
+/* Form area */
+.form-area{flex:1;overflow-y:auto;padding:14px 16px 30px}
 
-  /* ── ABOUT ── */
-  .about {
-    background: var(--dark);
-    color: #fff;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 5rem;
-    align-items: center;
-  }
-  .about .section-title { color: #fff; }
-  .about .section-title em { color: var(--gold-l); }
-  .about p {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.2rem;
-    line-height: 1.85;
-    color: rgba(255,255,255,0.72);
-    font-weight: 300;
-    margin-bottom: 1.2rem;
-  }
-  .about-img {
-    position: relative;
-    aspect-ratio: 3/4;
-    overflow: hidden;
-  }
-  .about-img img {
-    width: 100%; height: 100%;
-    object-fit: cover;
-    filter: sepia(20%) contrast(1.05);
-  }
-  .about-img::before {
-    content: '';
-    position: absolute; top: -1.5rem; left: -1.5rem; right: 1.5rem; bottom: 1.5rem;
-    border: 1px solid rgba(201,168,76,0.3);
-    z-index: 0;
-    pointer-events: none;
-  }
-  .about-stats {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 1.5rem; margin-top: 2.5rem;
-  }
-  .stat {
-    border-left: 2px solid var(--gold);
-    padding-left: 1.2rem;
-  }
-  .stat-num {
-    font-family: 'Cinzel', serif;
-    font-size: 2.2rem;
-    color: var(--gold);
-    line-height: 1;
-  }
-  .stat-label {
-    font-size: 0.7rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.45);
-    margin-top: 0.3rem;
-  }
+/* Fields */
+.section{font-size:10px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:.08em;margin:16px 0 8px;border-top:1px solid #1e1e1e;padding-top:12px}
+.section:first-child{margin-top:0;border-top:none;padding-top:0}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.span2{grid-column:span 2}
+.field-wrap{display:flex;flex-direction:column;gap:3px}
+.field-label{font-size:11px;color:#666}
+input[type=text]{width:100%;padding:7px 10px;font-size:12.5px;border:1px solid #252525;border-radius:5px;background:#191919;color:#e0e0e0;font-family:inherit;transition:border-color .1s}
+input[type=text]:focus{outline:none;border-color:#6366f1}
+textarea.fld{width:100%;resize:vertical;font-size:12.5px;padding:8px 10px;border:1px solid #252525;border-radius:5px;background:#191919;color:#e0e0e0;font-family:inherit;line-height:1.6;min-height:80px;transition:border-color .1s}
+textarea.fld:focus{outline:none;border-color:#6366f1}
 
-  /* ── WINES ── */
-  .wines { background: var(--cream); }
-  .wines-header { text-align: center; margin-bottom: 4rem; }
-  .wines-header .divider { margin-left: auto; margin-right: auto; }
-  .wines-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-  .wine-card {
-    background: #fff;
-    overflow: hidden;
-    border: 1px solid var(--cream-d);
-    transition: transform 0.4s, box-shadow 0.4s;
-  }
-  .wine-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 20px 60px rgba(92,26,46,0.12);
-  }
-  .wine-img {
-    height: 260px;
-    overflow: hidden;
-  }
-  .wine-img img {
-    width: 100%; height: 100%;
-    object-fit: cover;
-    transition: transform 0.6s;
-    filter: sepia(15%);
-  }
-  .wine-card:hover .wine-img img { transform: scale(1.05); }
-  .wine-body { padding: 2rem; }
-  .wine-region {
-    font-size: 0.62rem;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: var(--gold);
-    margin-bottom: 0.5rem;
-  }
-  .wine-name {
-    font-family: 'Cinzel', serif;
-    font-size: 1.25rem;
-    color: var(--wine-d);
-    margin-bottom: 0.8rem;
-    line-height: 1.2;
-  }
-  .wine-desc {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.05rem;
-    color: var(--muted);
-    line-height: 1.75;
-    font-weight: 400;
-  }
-  .wine-price {
-    margin-top: 1.5rem;
-    font-family: 'Cinzel', serif;
-    font-size: 1rem;
-    color: var(--wine);
-    letter-spacing: 0.05em;
-  }
+/* Filled by auto-fill */
+.autofilled{border-color:#6366f1 !important;background:#1a1a2e !important}
 
-  /* ── ROOMS ── */
-  .rooms {
-    background: var(--wine-d);
-    color: #fff;
-  }
-  .rooms .section-title { color: #fff; }
-  .rooms .section-title em { color: var(--gold-l); }
-  .rooms-grid {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    grid-template-rows: auto auto;
-    gap: 1.5rem;
-    margin-top: 3rem;
-    max-width: 1200px;
-  }
-  .room-card {
-    position: relative;
-    overflow: hidden;
-    cursor: pointer;
-  }
-  .room-card:first-child { grid-row: span 2; }
-  .room-img {
-    width: 100%; height: 100%;
-    min-height: 250px;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.6s;
-    filter: brightness(0.85);
-  }
-  .room-card:hover .room-img { transform: scale(1.04); }
-  .room-overlay {
-    position: absolute; inset: 0;
-    background: linear-gradient(to top, rgba(28,13,13,0.85) 0%, transparent 50%);
-    display: flex; flex-direction: column; justify-content: flex-end;
-    padding: 2rem;
-  }
-  .room-name {
-    font-family: 'Cinzel', serif;
-    font-size: 1.3rem;
-    color: #fff;
-    margin-bottom: 0.3rem;
-  }
-  .room-info {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1rem;
-    color: rgba(255,255,255,0.65);
-    font-style: italic;
-  }
+/* Validation warning */
+.warn{border-color:#f59e0b !important}
+.warn-lbl{font-size:10px;color:#f59e0b;display:none}
+.warn-lbl.show{display:block}
 
-  /* ── EXPERIENCE ── */
-  .experience { background: var(--cream-d); }
-  .experience-inner {
-    display: grid;
-    grid-template-columns: 1fr 1.5fr;
-    gap: 5rem;
-    align-items: start;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-  .experience-list { margin-top: 1rem; }
-  .exp-item {
-    display: flex; gap: 1.5rem; align-items: flex-start;
-    padding: 2rem 0;
-    border-bottom: 1px solid rgba(92,26,46,0.12);
-  }
-  .exp-item:last-child { border-bottom: none; }
-  .exp-num {
-    font-family: 'Cinzel', serif;
-    font-size: 1.8rem;
-    color: var(--cream-d);
-    -webkit-text-stroke: 1px var(--gold);
-    line-height: 1;
-    min-width: 2rem;
-    text-align: center;
-  }
-  .exp-title {
-    font-family: 'Cinzel', serif;
-    font-size: 1rem;
-    color: var(--wine-d);
-    margin-bottom: 0.4rem;
-  }
-  .exp-desc {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.05rem;
-    color: var(--muted);
-    line-height: 1.75;
-  }
-  .experience-visual {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-  }
-  .experience-visual img {
-    width: 100%; aspect-ratio: 1;
-    object-fit: cover;
-    filter: sepia(10%) contrast(1.05);
-  }
-  .experience-visual img:first-child {
-    grid-column: span 2;
-    aspect-ratio: 16/9;
-  }
+/* Y/N buttons */
+.yn-row{display:flex;gap:5px;margin-top:2px}
+.yn-row button{padding:4px 11px;font-size:11px;border:1px solid #2a2a2a;border-radius:5px;cursor:pointer;background:transparent;color:#666;font-family:inherit;transition:all .1s}
+.yn-row button:hover{border-color:#555;color:#ccc}
+.yn-row button.sel{background:#fff !important;color:#000 !important;border:2px solid #fff !important;font-weight:700}
 
-  /* ── TESTIMONIALS ── */
-  .testimonials {
-    background: var(--dark);
-    text-align: center;
-    color: #fff;
-  }
-  .testimonials .section-title { color: #fff; }
-  .testimonials .section-title em { color: var(--gold-l); }
-  .testimonials .divider { margin-left: auto; margin-right: auto; }
-  .testi-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2rem;
-    margin-top: 3rem;
-    max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  .testi-card {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(201,168,76,0.18);
-    padding: 2.5rem 2rem;
-    text-align: left;
-  }
-  .testi-stars {
-    color: var(--gold);
-    font-size: 0.9rem;
-    letter-spacing: 0.1em;
-    margin-bottom: 1.2rem;
-  }
-  .testi-text {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.15rem;
-    font-style: italic;
-    color: rgba(255,255,255,0.75);
-    line-height: 1.8;
-    margin-bottom: 1.5rem;
-  }
-  .testi-author {
-    font-size: 0.7rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--gold);
-  }
-  .testi-from {
-    font-size: 0.65rem;
-    color: rgba(255,255,255,0.35);
-    margin-top: 0.2rem;
-    letter-spacing: 0.1em;
-  }
+/* Divider */
+.div{border:none;border-top:1px solid #1e1e1e;margin:12px 0}
 
-  /* ── CONTACT ── */
-  .contact {
-    background: var(--cream);
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 5rem;
-    align-items: start;
-  }
-  .contact-form { display: flex; flex-direction: column; gap: 1.2rem; }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
-  .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
-  .form-label {
-    font-size: 0.65rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-  .form-input, .form-select, .form-textarea {
-    font-family: 'Jost', sans-serif;
-    font-size: 0.9rem;
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid var(--cream-d);
-    padding: 0.7rem 0;
-    color: var(--text);
-    outline: none;
-    transition: border-color 0.3s;
-    width: 100%;
-  }
-  .form-input:focus, .form-select:focus, .form-textarea:focus {
-    border-color: var(--wine);
-  }
-  .form-textarea { resize: vertical; min-height: 100px; }
-  .btn-submit {
-    font-family: 'Jost', sans-serif;
-    font-size: 0.72rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: #fff;
-    background: var(--wine);
-    padding: 1rem 3rem;
-    border: 2px solid var(--wine);
-    cursor: pointer;
-    align-self: flex-start;
-    font-weight: 500;
-    transition: all 0.3s;
-    margin-top: 0.5rem;
-  }
-  .btn-submit:hover { background: var(--wine-d); border-color: var(--wine-d); }
-  .contact-info { padding-top: 0.5rem; }
-  .contact-info p {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.15rem;
-    color: var(--muted);
-    line-height: 1.9;
-    margin-bottom: 2rem;
-  }
-  .contact-details { display: flex; flex-direction: column; gap: 1rem; }
-  .contact-detail {
-    display: flex; gap: 1rem; align-items: baseline;
-  }
-  .cd-label {
-    font-size: 0.62rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--gold);
-    min-width: 5rem;
-  }
-  .cd-val {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 1.1rem;
-    color: var(--text);
-  }
+/* Action buttons */
+.action-row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.btn-create{background:#e0e0e0;color:#111;border:none;padding:8px 18px;border-radius:6px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:600}
+.btn-create:hover{background:#fff}
+.btn-clear{background:transparent;color:#aaa;border:1px solid #2a2a2a;padding:8px 14px;border-radius:6px;font-size:13px;cursor:pointer;font-family:inherit}
+.btn-clear:hover{background:#1a1a1a}
 
-  /* ── FOOTER ── */
-  footer {
-    background: var(--dark);
-    color: rgba(255,255,255,0.35);
-    padding: 3rem 4rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-top: 1px solid rgba(201,168,76,0.15);
-  }
-  .footer-logo {
-    font-family: 'Cinzel', serif;
-    font-size: 1rem;
-    letter-spacing: 0.2em;
-    color: var(--gold);
-    text-decoration: none;
-  }
-  footer p { font-size: 0.7rem; letter-spacing: 0.1em; }
+/* Warn banner */
+.warn-banner{background:#2a1f00;border:1px solid #f59e0b;border-radius:6px;padding:8px 12px;font-size:11px;color:#f59e0b;margin-top:10px;display:none}
+.warn-banner.show{display:block}
 
-  /* ── TESTBANNER ── */
-  .test-banner {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    z-index: 999;
-    background: var(--wine-d);
-    border-top: 1px solid rgba(201,168,76,0.4);
-    color: rgba(255,255,255,0.85);
-    font-family: 'Jost', sans-serif;
-    font-size: 0.72rem;
-    letter-spacing: 0.1em;
-    text-align: center;
-    padding: 0.65rem 2rem;
-  }
-  .test-banner strong { color: var(--gold); }
+/* Hidden tabs */
+.tc{display:none}
+.tc.active{display:block}
 
-  /* ── MOBILE ── */
-  @media (max-width: 768px) {
-
-    /* Nav */
-    nav { padding: 1rem 1.5rem; }
-    .nav-links {
-      display: none;
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(28,13,13,0.98);
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 2.5rem;
-      z-index: 200;
-    }
-    .nav-links.open { display: flex; }
-    .nav-links a { font-size: 1rem; letter-spacing: 0.2em; }
-    .nav-book { display: none; }
-    .hamburger {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      cursor: pointer;
-      z-index: 300;
-      background: none;
-      border: none;
-      padding: 4px;
-    }
-    .hamburger span {
-      display: block;
-      width: 24px; height: 2px;
-      background: var(--gold);
-      transition: all 0.3s;
-    }
-    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-    .hamburger.open span:nth-child(2) { opacity: 0; }
-    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
-
-    /* Hero */
-    .hero { padding-top: 10vh; min-height: 100vh; }
-    .hero-quickbook { margin-top: 2rem; }
-
-    /* Sections */
-    section { padding: 4rem 1.5rem; }
-
-    /* About */
-    .about { grid-template-columns: 1fr; gap: 2.5rem; }
-    .about-img { max-height: 320px; }
-    .about-stats { grid-template-columns: 1fr 1fr; }
-
-    /* Wines */
-    .wines-grid { grid-template-columns: 1fr; gap: 1.5rem; }
-
-    /* Rooms */
-    .rooms-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
-    .room-card:first-child { grid-row: span 1; }
-    .room-img { min-height: 220px; }
-
-    /* Experience */
-    .experience-inner { grid-template-columns: 1fr; gap: 2rem; }
-    .experience-visual { grid-template-columns: 1fr 1fr; }
-    .experience-visual img:first-child { grid-column: span 2; }
-
-    /* Testimonials */
-    .testi-grid { grid-template-columns: 1fr; gap: 1.2rem; }
-
-    /* Contact */
-    .contact { grid-template-columns: 1fr; gap: 3rem; }
-    .form-row { grid-template-columns: 1fr; }
-
-    /* Footer */
-    footer { flex-direction: column; gap: 1rem; text-align: center; padding: 2rem 1.5rem; }
-  }
-
-  @media (min-width: 769px) {
-    .hamburger { display: none; }
-  }
-  .reveal { opacity: 0; transform: translateY(25px); transition: opacity 0.8s ease, transform 0.8s ease; }
-  .reveal.visible { opacity: 1; transform: translateY(0); }
+/* Modal */
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px}
+#modal.open{display:flex}
+.modal-box{background:#161616;border:1px solid #333;border-radius:10px;width:100%;max-width:720px;max-height:90vh;display:flex;flex-direction:column}
+.modal-head{padding:12px 16px;border-bottom:1px solid #2a2a2a;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.modal-head span{font-size:13px;font-weight:600;color:#fff}
+.modal-btns{display:flex;gap:8px}
+.btn-copy{background:#6366f1;color:#fff;border:none;padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:600}
+.btn-close{background:#252525;color:#aaa;border:none;padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit}
+#modal-body{padding:16px;overflow-y:auto;font-size:12.5px;line-height:1.75;color:#ddd;white-space:pre-wrap;font-family:inherit}
 </style>
 </head>
 <body>
 
-<nav>
-  <a href="#start" class="nav-logo">Rodriguez <span>Hotels</span></a>
-  <ul class="nav-links" id="navLinks">
-    <li><a href="#about" onclick="closeNav()">Über uns</a></li>
-    <li><a href="#weine" onclick="closeNav()">Weine</a></li>
-    <li><a href="#zimmer" onclick="closeNav()">Zimmer</a></li>
-    <li><a href="#erlebnisse" onclick="closeNav()">Erlebnisse</a></li>
-    <li><a href="#kontakt" onclick="closeNav()">Kontakt</a></li>
-  </ul>
-  <button class="nav-book d21-trigger-ibe">Jetzt buchen</button>
-  <button class="hamburger" id="hamburger" onclick="toggleNav()" aria-label="Menü">
-    <span></span><span></span><span></span>
-  </button>
-</nav>
-
-<!-- TESTHINWEIS -->
-<div class="test-banner">
-  <strong>Testwebsite</strong> — Diese Seite befindet sich im Testbetrieb. Es können keine echten Buchungen vorgenommen werden.
+<!-- Topbar -->
+<div class="topbar">
+  <h1>3rd Level Ticket Builder</h1>
+  <div class="topbar-divider"></div>
+  <button class="btn-autofill" id="autofill-btn" onclick="autoFill()">✦ Auto-Fill aus Original-Ticket</button>
+  <span id="fill-status"></span>
+  <span id="fill-error"></span>
 </div>
-<section class="hero" id="start">
-  <div class="hero-bg"></div>
-  <div class="hero-content">
-    <p class="hero-eyebrow">Willkommen im Herz der Weinberge</p>
-    <h1 class="hero-title">Rodriguez<br><em>Hotels</em></h1>
-    <p class="hero-sub">Wo Wein, Stille und Eleganz eine Seele finden</p>
-    <div class="hero-cta">
-      <a href="#weine" class="btn-outline">Weinauswahl entdecken</a>
-    </div>
-    <div class="hero-quickbook">
-      <div class="d21-quickbook"></div>
-    </div>
-  </div>
-  <div class="hero-scroll">Entdecken</div>
-</section>
 
-<!-- ABOUT -->
-<section class="about" id="about">
-  <div class="reveal">
-    <p class="section-eyebrow">Unsere Geschichte</p>
-    <h2 class="section-title">Ein Ort, so alt<br>wie der <em>Wein</em> selbst</h2>
-    <div class="divider"></div>
-    <p>Das Rodriguez Hotel liegt inmitten handgepflegter Weinberge, wo jede Rebe eine Geschichte trägt. Seit drei Generationen empfangen wir Gäste, die nicht nur Urlaub, sondern eine Verwandlung suchen.</p>
-    <p>Unser Keller beherbergt über 400 handverlesene Weine aus den bedeutendsten Regionen der Welt. Das Restaurant serviert Gerichte, die die Ernte des Tages feiern.</p>
-    <div class="about-stats">
-      <div class="stat">
-        <div class="stat-num">1972</div>
-        <div class="stat-label">Gegründet</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num">400+</div>
-        <div class="stat-label">Weinselektionen</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num">28</div>
-        <div class="stat-label">Exklusive Zimmer</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num">5★</div>
-        <div class="stat-label">Auszeichnungen</div>
-      </div>
-    </div>
-  </div>
-  <div class="about-img reveal">
-    <img src="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=800&q=80" alt="Weinberge des Rodriguez Hotels">
-  </div>
-</section>
+<!-- Split -->
+<div class="split">
 
-<!-- WINES -->
-<section class="wines" id="weine">
-  <div class="wines-header reveal">
-    <p class="section-eyebrow">Unsere Weinauswahl</p>
-    <h2 class="section-title">Vom Berg in <em>Ihr Glas</em></h2>
-    <div class="divider"></div>
+  <!-- LEFT -->
+  <div class="left">
+    <div class="panel-label">
+      Original 1st Level Ticket
+      <span onclick="document.getElementById('ref-ticket').value='';document.getElementById('fill-status').textContent='';document.getElementById('fill-error').textContent=''">Leeren</span>
+    </div>
+    <textarea id="ref-ticket" placeholder="Originalticket hier einfügen...&#10;&#10;Auto-Fill erkennt:&#10;• KNR / Service Level&#10;• Ticket-Typ &amp; Tab&#10;• Problem, Erwartung&#10;• Links, BIDs, UUIDs&#10;• Agent-Namen&#10;• Status-Werte&#10;&#10;Alle Felder werden geprüft und&#10;mit dem Original abgeglichen."></textarea>
   </div>
-  <div class="wines-grid">
-    <div class="wine-card reveal">
-      <div class="wine-img">
-        <img src="https://images.unsplash.com/photo-1474722883778-792e7990302f?w=600&q=80" alt="Rotwein">
-      </div>
-      <div class="wine-body">
-        <p class="wine-region">Rioja, Spanien</p>
-        <h3 class="wine-name">Gran Reserva Rodriguez</h3>
-        <p class="wine-desc">Tief rubinrot, mit Noten von dunklen Kirschen, gerösteter Vanille und einem Hauch Leder. Ein Wein, der Zeit braucht – und sie wert ist.</p>
-        <p class="wine-price">ab € 18 / Glas</p>
-      </div>
-    </div>
-    <div class="wine-card reveal">
-      <div class="wine-img">
-        <img src="https://images.unsplash.com/photo-1566552881560-0be862a7c445?w=600&q=80" alt="Weißwein">
-      </div>
-      <div class="wine-body">
-        <p class="wine-region">Burgund, Frankreich</p>
-        <h3 class="wine-name">Cuvée Blanc de Lumière</h3>
-        <p class="wine-desc">Mineralisch, frisch, mit zarten Noten von weißem Pfirsich und Akazienblüte. Ideal zum Aperitif oder zu feinem Fisch.</p>
-        <p class="wine-price">ab € 15 / Glas</p>
-      </div>
-    </div>
-    <div class="wine-card reveal">
-      <div class="wine-img">
-        <img src="https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?w=600&q=80" alt="Rosé">
-      </div>
-      <div class="wine-body">
-        <p class="wine-region">Provence, Frankreich</p>
-        <h3 class="wine-name">Rosé de la Terrasse</h3>
-        <p class="wine-desc">Zartlachsfarben, mit Erdbeer- und Grapefruitnoten. Leicht, elegant und perfekt für laue Sommerabende auf unserer Terrasse.</p>
-        <p class="wine-price">ab € 14 / Glas</p>
-      </div>
-    </div>
-  </div>
-</section>
 
-<!-- ROOMS -->
-<section class="rooms" id="zimmer">
-  <div class="reveal">
-    <p class="section-eyebrow">Unterkunft</p>
-    <h2 class="section-title">Zimmer & <em>Suiten</em></h2>
-    <div class="divider"></div>
-  </div>
-  <div class="rooms-grid reveal">
-    <div class="room-card">
-      <img class="room-img" src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=900&q=80" alt="Grand Suite">
-      <div class="room-overlay">
-        <p class="room-name">La Grand Suite</p>
-        <p class="room-info">Panoramablick auf die Weinberge · 85 m²</p>
-      </div>
+  <!-- RIGHT -->
+  <div class="right">
+    <div class="tabs" id="tab-bar">
+      <button class="tab active" onclick="sw('pms')">PMS</button>
+      <button class="tab" onclick="sw('pmsres')">PMS Reservation</button>
+      <button class="tab" onclick="sw('ob')">Overbooking</button>
+      <button class="tab" onclick="sw('pay')">Payment</button>
+      <button class="tab" onclick="sw('ota')">OTA</button>
+      <button class="tab" onclick="sw('one')">ONE</button>
+      <button class="tab" onclick="sw('meta')">Meta</button>
+      <button class="tab" onclick="sw('bug')">Bugfix</button>
+      <button class="tab" onclick="sw('cockpit')">Cockpit</button>
+      <button class="tab" onclick="sw('neu')">Neu</button>
     </div>
-    <div class="room-card">
-      <img class="room-img" src="https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=600&q=80" alt="Deluxe Zimmer">
-      <div class="room-overlay">
-        <p class="room-name">Deluxe Zimmer</p>
-        <p class="room-info">Balkon mit Gartenblick · 45 m²</p>
-      </div>
-    </div>
-    <div class="room-card">
-      <img class="room-img" src="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=600&q=80" alt="Cave Suite">
-      <div class="room-overlay">
-        <p class="room-name">Cave Suite</p>
-        <p class="room-info">Im historischen Gewölbe · 60 m²</p>
-      </div>
-    </div>
-  </div>
-</section>
 
-<!-- EXPERIENCE -->
-<section class="experience" id="erlebnisse">
-  <div class="experience-inner">
-    <div>
-      <p class="section-eyebrow reveal">Erlebnisse</p>
-      <h2 class="section-title reveal">Mehr als ein<br><em>Aufenthalt</em></h2>
-      <div class="divider reveal"></div>
-      <div class="experience-list">
-        <div class="exp-item reveal">
-          <div class="exp-num">01</div>
-          <div>
-            <p class="exp-title">Private Weinverkostungen</p>
-            <p class="exp-desc">Unser Sommelier führt Sie durch eine kuratierte Auswahl von Tropfen aus unserem Keller – in der Stille des Gewölbes, bei Kerzenlicht.</p>
-          </div>
-        </div>
-        <div class="exp-item reveal">
-          <div class="exp-num">02</div>
-          <div>
-            <p class="exp-title">Weinberg-Spaziergänge</p>
-            <p class="exp-desc">Erleben Sie die Reben aus nächster Nähe: von der Ernte bis zur Kelter. Jede Jahreszeit bietet ein anderes Bild.</p>
-          </div>
-        </div>
-        <div class="exp-item reveal">
-          <div class="exp-num">03</div>
-          <div>
-            <p class="exp-title">Chef's Table</p>
-            <p class="exp-desc">Ein exklusives Mehrgangmenü direkt an der Seite unseres Küchenchefs – mit perfekt abgestimmten Weinbegleitungen.</p>
-          </div>
-        </div>
-        <div class="exp-item reveal">
-          <div class="exp-num">04</div>
-          <div>
-            <p class="exp-title">Spa & Weinbad</p>
-            <p class="exp-desc">Die Trauben der Region sind nicht nur für den Gaumen: Erleben Sie unsere Vinotherapie-Behandlungen für Haut und Seele.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="experience-visual reveal">
-      <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80" alt="Restaurant">
-      <img src="https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?w=500&q=80" alt="Weinberg">
-      <img src="https://images.unsplash.com/photo-1519671282429-b44e83cf4ac1?w=500&q=80" alt="Spa">
-    </div>
-  </div>
-</section>
+    <div class="form-area" id="form-area">
 
-<!-- TESTIMONIALS -->
-<section class="testimonials">
-  <p class="section-eyebrow reveal">Gästestimmen</p>
-  <h2 class="section-title reveal">Was unsere Gäste <em>sagen</em></h2>
-  <div class="divider reveal"></div>
-  <div class="testi-grid">
-    <div class="testi-card reveal">
-      <p class="testi-stars">★★★★★</p>
-      <p class="testi-text">„Ein Aufenthalt, der alle Sinne verwöhnt. Die Weinverkostung mit dem Sommelier war das Highlight unserer Reise. Wir kommen sicher wieder."</p>
-      <p class="testi-author">Marie & Thomas K.</p>
-      <p class="testi-from">Hamburg, Deutschland</p>
-    </div>
-    <div class="testi-card reveal">
-      <p class="testi-stars">★★★★★</p>
-      <p class="testi-text">„Die Cave Suite ist ein Traum. Ruhig, atmosphärisch, mit einem Weinkeller direkt nebenan. Perfekter Rückzugsort für eine romantische Auszeit."</p>
-      <p class="testi-author">Isabelle M.</p>
-      <p class="testi-from">Lyon, Frankreich</p>
-    </div>
-    <div class="testi-card reveal">
-      <p class="testi-stars">★★★★★</p>
-      <p class="testi-text">„Das Restaurant übertrifft alles, was ich in der Region kenne. Das Menü mit Weinbegleitung war ein echtes Kunstwerk. Danke, Rodriguez Hotels!"</p>
-      <p class="testi-author">Marco R.</p>
-      <p class="testi-from">Mailand, Italien</p>
-    </div>
-  </div>
-</section>
+      <!-- ═══ PMS ═══ -->
+      <div class="tc active" id="tc-pms">
+        <div class="section">Context</div>
+        <div class="g2">
+          <div class="field-wrap"><div class="field-label">KNR / Service Level</div><input type="text" id="pms-knr" placeholder="z.B. 12345 / SLB"/><div class="warn-lbl" id="wl-pms-knr">⚠ Leer</div></div>
+          <div class="field-wrap"><div class="field-label">PMS Version</div><input type="text" id="pms-ver" placeholder="V2 / V3"/><div class="warn-lbl" id="wl-pms-ver">⚠ Leer</div></div>
+          <div class="field-wrap"><div class="field-label">Modules / Environment</div><input type="text" id="pms-env"/><div class="warn-lbl" id="wl-pms-env">⚠ Leer</div></div>
+          <div class="field-wrap"><div class="field-label">Bearbeiter (2nd Level)</div><input type="text" id="pms-agent" placeholder="z.B. Rahm"/><div class="warn-lbl" id="wl-pms-agent">⚠ Leer</div></div>
+        </div>
+        <div class="section">Problem</div>
+        <div class="field-wrap"><textarea class="fld" id="pms-prob" spellcheck="true"></textarea><div class="warn-lbl" id="wl-pms-prob">⚠ Leer</div></div>
+        <div class="section">Expectation</div>
+        <div class="g2">
+          <div class="field-wrap"><div class="field-label">Value in PMS</div><input type="text" id="pms-vpms"/></div>
+          <div class="field-wrap"><div class="field-label">Value in Cockpit</div><input type="text" id="pms-vcockpit"/></div>
+          <div class="field-wrap span2"><div class="field-label">What should happen?</div><input type="text" id="pms-exp" placeholder="Was sollte stattdessen passieren?"/><div class="warn-lbl" id="wl-pms-exp">⚠ Leer</div></div>
+        </div>
+        <div class="section">Example</div>
+        <div class="field-wrap"><textarea class="fld" id="pms-ex" spellcheck="true"></textarea></div>
+        <div class="section">Optional Tech</div>
+        <div class="field-wrap"><textarea class="fld" id="pms-tech" spellcheck="true"></textarea></div>
+        <hr class="div"/>
+        <div class="section">Result for Customer</div>
+        <div class="field-wrap"><textarea class="fld" id="pms-res" spellcheck="true"></textarea><div class="warn-lbl" id="wl-pms-res">⚠ Leer</div></div>
+        <div class="section">Status</div>
+        <div class="g3">
+          <div class="field-wrap"><div class="field-label">Global?</div><div class="yn-row" id="yn-pms-g"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Finances?</div><div class="yn-row" id="yn-pms-f"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Availability?</div><div class="yn-row" id="yn-pms-a"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Escalates?</div><div class="yn-row" id="yn-pms-e"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Security?</div><div class="yn-row" id="yn-pms-s"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+        </div>
+        <div class="section">Ticket Owners</div>
+        <div class="g2">
+          <div class="field-wrap"><div class="field-label">1st Level</div><input type="text" id="pms-1st"/><div class="warn-lbl" id="wl-pms-1st">⚠ Leer</div></div>
+          <div class="field-wrap"><div class="field-label">HubSpot Ticket-ID</div><input type="text" id="pms-hsid"/></div>
+        </div>
+        <div class="action-row">
+          <button class="btn-create" onclick="buildTicket('pms')">Ticket erstellen ↗</button>
+          <button class="btn-clear" onclick="clr('pms')">Leeren</button>
+        </div>
+        <div class="warn-banner" id="wb-pms"></div>
+      </div>
 
-<!-- CONTACT -->
-<section class="contact" id="kontakt">
-  <div class="reveal">
-    <p class="section-eyebrow">Reservierung & Anfragen</p>
-    <h2 class="section-title">Ihr Aufenthalt<br>beginnt <em>hier</em></h2>
-    <div class="divider"></div>
-    <div class="contact-info">
-      <p>Wir freuen uns auf Ihre Nachricht. Unser Team antwortet innerhalb von 24 Stunden und gestaltet gerne einen unvergesslichen Aufenthalt für Sie.</p>
-      <div class="contact-details">
-        <div class="contact-detail">
-          <span class="cd-label">Adresse</span>
-          <span class="cd-val">Weinbergstraße 1, 55218 Ingelheim am Rhein</span>
+      <!-- ═══ PMS RESERVATION ═══ -->
+      <div class="tc" id="tc-pmsres">
+        <div class="section">Context</div>
+        <div class="g2">
+          <div class="field-wrap"><div class="field-label">KNR / Service Level</div><input type="text" id="pr-knr"/><div class="warn-lbl" id="wl-pr-knr">⚠ Leer</div></div>
+          <div class="field-wrap"><div class="field-label">PMS Version</div><input type="text" id="pr-ver" placeholder="V2 / V3"/></div>
+          <div class="field-wrap"><div class="field-label">Modules / Environment</div><input type="text" id="pr-env"/></div>
+          <div class="field-wrap"><div class="field-label">Bearbeiter (2nd Level)</div><input type="text" id="pr-agent" placeholder="z.B. Rahm"/></div>
         </div>
-        <div class="contact-detail">
-          <span class="cd-label">Telefon</span>
-          <span class="cd-val">+49 6132 99 44 00</span>
+        <div class="section">Problem</div>
+        <div class="field-wrap"><textarea class="fld" id="pr-prob" spellcheck="true"></textarea><div class="warn-lbl" id="wl-pr-prob">⚠ Leer</div></div>
+        <div class="section">Expectation</div>
+        <div class="g2">
+          <div class="field-wrap"><div class="field-label">Value in PMS</div><input type="text" id="pr-vpms"/></div>
+          <div class="field-wrap"><div class="field-label">Value in Cockpit</div><input type="text" id="pr-vcockpit"/></div>
+          <div class="field-wrap"><div class="field-label">What would be correct?</div><input type="text" id="pr-correct" placeholder="Was sollte stattdessen passieren?"/></div>
+          <div class="field-wrap"><div class="field-label">What is wrong in PMS?</div><input type="text" id="pr-wrong"/></div>
         </div>
-        <div class="contact-detail">
-          <span class="cd-label">E-Mail</span>
-          <span class="cd-val">info@rodriguez-hotels.de</span>
+        <div class="g3" style="margin-top:8px">
+          <div class="field-wrap"><div class="field-label">Sent to PMS?</div><div class="yn-row" id="yn-pr-sent"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">PMS confirmed?</div><div class="yn-row" id="yn-pr-conf"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
         </div>
-        <div class="contact-detail">
-          <span class="cd-label">Check-in</span>
-          <span class="cd-val">ab 15:00 Uhr · Abreise bis 12:00 Uhr</span>
+        <div class="section">Example</div>
+        <div class="field-wrap"><textarea class="fld" id="pr-ex" spellcheck="true"></textarea></div>
+        <div class="section">Optional Tech</div>
+        <div class="field-wrap"><textarea class="fld" id="pr-tech" spellcheck="true"></textarea></div>
+        <hr class="div"/>
+        <div class="section">Result for Customer</div>
+        <div class="field-wrap"><textarea class="fld" id="pr-res" spellcheck="true"></textarea></div>
+        <div class="section">Status</div>
+        <div class="g3">
+          <div class="field-wrap"><div class="field-label">Global?</div><div class="yn-row" id="yn-pr-g"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Finances?</div><div class="yn-row" id="yn-pr-f"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Availability?</div><div class="yn-row" id="yn-pr-a"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Escalates?</div><div class="yn-row" id="yn-pr-e"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Security?</div><div class="yn-row" id="yn-pr-s"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
         </div>
+        <div class="section">Ticket Owners</div>
+        <div class="g2">
+          <div class="field-wrap"><div class="field-label">1st Level</div><input type="text" id="pr-1st"/></div>
+          <div class="field-wrap"><div class="field-label">HubSpot Ticket-ID</div><input type="text" id="pr-hsid"/></div>
+        </div>
+        <div class="action-row">
+          <button class="btn-create" onclick="buildTicket('pmsres')">Ticket erstellen ↗</button>
+          <button class="btn-clear" onclick="clr('pmsres')">Leeren</button>
+        </div>
+        <div class="warn-banner" id="wb-pmsres"></div>
       </div>
+
+      <!-- ═══ OVERBOOKING ═══ -->
+      <div class="tc" id="tc-ob">
+        <div class="section">Context</div>
+        <div class="g2">
+          <div class="field-wrap"><div class="field-label">KNR / Service Level</div><input type="text" id="ob-knr"/><div class="warn-lbl" id="wl-ob-knr">⚠ Leer</div></div>
+          <div class="field-wrap"><div class="field-label">BID</div><input type="text" id="ob-bid"/></div>
+          <div class="field-wrap"><div class="field-label">Modules / Environment</div><input type="text" id="ob-env"/></div>
+          <div class="field-wrap"><div class="field-label">Bearbeiter (2nd Level)</div><input type="text" id="ob-agent" placeholder="z.B. Rahm"/></div>
+        </div>
+        <div class="section">Overbooking Details</div>
+        <div class="g2">
+          <div class="field-wrap"><div class="field-label">Source (IBE / OTA)</div><input type="text" id="ob-src"/></div>
+          <div class="field-wrap"><div class="field-label">Overbooked BID</div><input type="text" id="ob-obid"/></div>
+          <div class="field-wrap"><div class="field-label">Wann überbucht?</div><input type="text" id="ob-when"/></div>
+          <div class="field-wrap"><div class="field-label">Affected Room (name/ID)</div><input type="text" id="ob-room"/></div>
+          <div class="field-wrap"><div class="field-label">Datum</div><input type="text" id="ob-date"/></div>
+          <div class="field-wrap"><div class="field-label">Logging Link</div><input type="text" id="ob-log" placeholder="https://..."/></div>
+        </div>
+        <div class="g3" style="margin-top:8px">
+          <div class="field-wrap"><div class="field-label">Verfügbarkeit = -1?</div><div class="yn-row" id="yn-ob-neg"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+        </div>
+        <div class="section">Optional Tech</div>
+        <div class="field-wrap"><textarea class="fld" id="ob-tech" spellcheck="true"></textarea></div>
+        <hr class="div"/>
+        <div class="section">Result for Customer</div>
+        <div class="field-wrap"><textarea class="fld" id="ob-res" spellcheck="true"></textarea></div>
+        <div class="section">Status</div>
+        <div class="g3">
+          <div class="field-wrap"><div class="field-label">Global?</div><div class="yn-row" id="yn-ob-g"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Finances?</div><div class="yn-row" id="yn-ob-f"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Availability?</div><div class="yn-row" id="yn-ob-a"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Escalates?</div><div class="yn-row" id="yn-ob-e"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Security?</div><div class="yn-row" id="yn-ob-s"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+        </div>
+        <div class="section">Ticket Owners</div>
+        <div class="g2">
+          <div class="field-wrap"><div class="field-label">1st Level</div><input type="text" id="ob-1st"/></div>
+          <div class="field-wrap"><div class="field-label">HubSpot Ticket-ID</div><input type="text" id="ob-hsid"/></div>
+        </div>
+        <div class="action-row">
+          <button class="btn-create" onclick="buildTicket('ob')">Ticket erstellen ↗</button>
+          <button class="btn-clear" onclick="clr('ob')">Leeren</button>
+        </div>
+        <div class="warn-banner" id="wb-ob"></div>
+      </div>
+
+      <!-- ═══ PAYMENT ═══ -->
+      <div class="tc" id="tc-pay">
+        <div class="section">Context</div>
+        <div class="g2">
+          <div class="field-wrap"><div class="field-label">KNR / Service Level</div><input type="text" id="pay-knr"/><div class="warn-lbl" id="wl-pay-knr">⚠ Leer</div></div>
+          <div class="field-wrap"><div class="field-label">Payment Provider</div><input type="text" id="pay-prov" placeholder="Datatrans, Nexi, Stripe..."/><div class="warn-lbl" id="wl-pay-prov">⚠ Leer</div></div>
+          <div class="field-wrap"><div class="field-label">Modules / Environment</div><input type="text" id="pay-env"/></div>
+          <div class="field-wrap"><div class="field-label">Bearbeiter (2nd Level)</div><input type="text" id="pay-agent" placeholder="z.B. Rahm"/></div>
+          <div class="field-wrap"><div class="field-label">Payment & Cancellation Condition</div><input type="text" id="pay-cond" placeholder="Name / ID"/></div>
+          <div class="field-wrap"><div class="field-label">Affected Rate (name/ID)</div><input type="text" id="pay-rate"/></div>
+        </div>
+        <div class="section">Problem</div>
+        <div class="field-wrap"><textarea class="fld" id="pay-prob" spellcheck="true"></textarea><div class="warn-lbl" id="wl-pay-prob">⚠ Leer</div></div>
+        <div class="section">Expectation</div>
+        <div class="field-wrap"><input type="text" id="pay-exp" placeholder="Was sollte stattdessen passieren?"/><div class="warn-lbl" id="wl-pay-exp">⚠ Leer</div></div>
+        <div class="section">Example</div>
+        <div class="field-wrap"><textarea class="fld" id="pay-ex" spellcheck="true"></textarea></div>
+        <div class="section">Optional Tech</div>
+        <div class="field-wrap"><textarea class="fld" id="pay-tech" spellcheck="true"></textarea></div>
+        <div class="g3" style="margin-top:8px">
+          <div class="field-wrap"><div class="field-label">Credentials proved?</div><div class="yn-row" id="yn-pay-cred"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Rate settings proved?</div><div class="yn-row" id="yn-pay-rset"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+        </div>
+        <hr class="div"/>
+        <div class="section">Result for Customer</div>
+        <div class="field-wrap"><textarea class="fld" id="pay-res" spellcheck="true"></textarea></div>
+        <div class="section">Status</div>
+        <div class="g3">
+          <div class="field-wrap"><div class="field-label">Global?</div><div class="yn-row" id="yn-pay-g"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Finances?</div><div class="yn-row" id="yn-pay-f"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Availability?</div><div class="yn-row" id="yn-pay-a"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Escalates?</div><div class="yn-row" id="yn-pay-e"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Security?</div><div class="yn-row" id="yn-pay-s"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+        </div>
+        <div class="section">Ticket Owners</div>
+        <div class="g2">
+          <div class="field-wrap"><div class="field-label">1st Level</div><input type="text" id="pay-1st"/></div>
+          <div class="field-wrap"><div class="field-label">HubSpot Ticket-ID</div><input type="text" id="pay-hsid"/></div>
+        </div>
+        <div class="action-row">
+          <button class="btn-create" onclick="buildTicket('pay')">Ticket erstellen ↗</button>
+          <button class="btn-clear" onclick="clr('pay')">Leeren</button>
+        </div>
+        <div class="warn-banner" id="wb-pay"></div>
+      </div>
+
+      <!-- ═══ OTA ═══ -->
+      <div class="tc" id="tc-ota">
+        <div class="section">Context</div>
+        <div class="g2">
+          <div class="field-wrap"><div class="field-label">KNR / Service Level</div><input type="text" id="ota-knr"/><div class="warn-lbl" id="wl-ota-knr">⚠ Leer</div></div>
+          <div class="field-wrap"><div class="field-label">OTA</div><input type="text" id="ota-name" placeholder="Booking.com, Expedia..."/></div>
+          <div class="field-wrap"><div class="field-label">Modules / Environment</div><input type="text" id="ota-env"/></div>
+          <div class="field-wrap"><div class="field-label">Bearbeiter (2nd Level)</div><input type="text" id="ota-agent" placeholder="z.B. Rahm"/></div>
+        </div>
+        <div class="section">Problem</div>
+        <div class="field-wrap"><textarea class="fld" id="ota-prob" spellcheck="true"></textarea><div class="warn-lbl" id="wl-ota-prob">⚠ Leer</div></div>
+        <div class="section">Expectation</div>
+        <div class="g2">
+          <div class="field-wrap"><div class="field-label">Value in OTA</div><input type="text" id="ota-vota"/></div>
+          <div class="field-wrap"><div class="field-label">Value in DIRS21</div><input type="text" id="ota-vdirs"/></div>
+          <div class="field-wrap span2"><div class="field-label">What should happen?</div><input type="text" id="ota-exp" placeholder="Was sollte stattdessen passieren?"/></div>
+        </div>
+        <div class="section">Example</div>
+        <div class="field-wrap"><textarea class="fld" id="ota-ex" spellcheck="true"></textarea></div>
+        <div class="section">Optional Tech</div>
+        <div class="field-wrap"><textarea class="fld" id="ota-tech" spellcheck="true"></textarea></div>
+        <hr class="div"/>
+        <div class="section">Result for Customer</div>
+        <div class="field-wrap"><textarea class="fld" id="ota-res" spellcheck="true"></textarea></div>
+        <div class="section">Status</div>
+        <div class="g3">
+          <div class="field-wrap"><div class="field-label">Global?</div><div class="yn-row" id="yn-ota-g"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Finances?</div><div class="yn-row" id="yn-ota-f"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Availability?</div><div class="yn-row" id="yn-ota-a"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Escalates?</div><div class="yn-row" id="yn-ota-e"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Security?</div><div class="yn-row" id="yn-ota-s"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+        </div>
+        <div class="section">Ticket Owners</div>
+        <div class="g2">
+          <div class="field-wrap"><div class="field-label">1st Level</div><input type="text" id="ota-1st"/></div>
+          <div class="field-wrap"><div class="field-label">HubSpot Ticket-ID</div><input type="text" id="ota-hsid"/></div>
+        </div>
+        <div class="action-row">
+          <button class="btn-create" onclick="buildTicket('ota')">Ticket erstellen ↗</button>
+          <button class="btn-clear" onclick="clr('ota')">Leeren</button>
+        </div>
+        <div class="warn-banner" id="wb-ota"></div>
+      </div>
+
+      <!-- ═══ ONE ═══ -->
+      <div class="tc" id="tc-one">
+        <div class="section">Context</div>
+        <div class="g2">
+          <div class="field-wrap"><div class="field-label">KNR / Service Level</div><input type="text" id="one-knr"/><div class="warn-lbl" id="wl-one-knr">⚠ Leer</div></div>
+          <div class="field-wrap"><div class="field-label">ONE Product</div><input type="text" id="one-prod" placeholder="z.B. ONE IBE, Add-Ons..."/></div>
+          <div class="field-wrap"><div class="field-label">Environment</div><input type="text" id="one-env"/></div>
+          <div class="field-wrap"><div class="field-label">Bearbeiter (2nd Level)</div><input type="text" id="one-agent" placeholder="z.B. Rahm"/></div>
+          <div class="field-wrap span2"><div class="field-label">Direct-Link</div><input type="text" id="one-link" placeholder="https://reservation.one.dirs21.de/..."/></div>
+          <div class="field-wrap"><div class="field-label">BID / TOCC ID</div><input type="text" id="one-bid"/></div>
+          <div class="field-wrap"><div class="field-label">UUID</div><input type="text" id="one-uuid"/></div>
+        </div>
+        <div class="section">Problem</div>
+        <div class="field-wrap"><textarea class="fld" id="one-prob" spellcheck="true"></textarea><div class="warn-lbl" id="wl-one-prob">⚠ Leer</div></div>
+        <div class="section">Expectation</div>
+        <div class="field-wrap"><input type="text" id="one-exp" placeholder="Was sollte stattdessen passieren?"/><div class="warn-lbl" id="wl-one-exp">⚠ Leer</div></div>
+        <div class="section">Example</div>
+        <div class="field-wrap"><textarea class="fld" id="one-ex" spellcheck="true"></textarea></div>
+        <div class="section">Optional Tech</div>
+        <div class="field-wrap"><textarea class="fld" id="one-tech" spellcheck="true"></textarea></div>
+        <hr class="div"/>
+        <div class="section">Result for Customer</div>
+        <div class="field-wrap"><textarea class="fld" id="one-res" spellcheck="true"></textarea></div>
+        <div class="section">Status</div>
+        <div class="g3">
+          <div class="field-wrap"><div class="field-label">Global?</div><div class="yn-row" id="yn-one-g"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Finances?</div><div class="yn-row" id="yn-one-f"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Availability?</div><div class="yn-row" id="yn-one-a"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Escalates?</div><div class="yn-row" id="yn-one-e"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Security?</div><div class="yn-row" id="yn-one-s"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+        </div>
+        <div class="section">Ticket Owners</div>
+        <div class="g2">
+          <div class="field-wrap"><div class="field-label">1st Level</div><input type="text" id="one-1st"/></div>
+          <div class="field-wrap"><div class="field-label">HubSpot Ticket-ID</div><input type="text" id="one-hsid"/></div>
+        </div>
+        <div class="action-row">
+          <button class="btn-create" onclick="buildTicket('one')">Ticket erstellen ↗</button>
+          <button class="btn-clear" onclick="clr('one')">Leeren</button>
+        </div>
+        <div class="warn-banner" id="wb-one"></div>
+      </div>
+
+      <!-- ═══ META ═══ -->
+      <div class="tc" id="tc-meta">
+        <div class="section">Context</div>
+        <div class="g2">
+          <div class="field-wrap"><div class="field-label">KNR / Service Level</div><input type="text" id="meta-knr"/></div>
+          <div class="field-wrap"><div class="field-label">Meta-Source (mit Link)</div><input type="text" id="meta-src"/></div>
+          <div class="field-wrap"><div class="field-label">Modules / Environment</div><input type="text" id="meta-env"/></div>
+          <div class="field-wrap"><div class="field-label">Bearbeiter (2nd Level)</div><input type="text" id="meta-agent" placeholder="z.B. Rahm"/></div>
+        </div>
+        <div class="section">Problem</div>
+        <div class="field-wrap"><textarea class="fld" id="meta-prob" spellcheck="true"></textarea></div>
+        <div class="section">Expectation</div>
+        <div class="field-wrap"><input type="text" id="meta-exp" placeholder="Was sollte stattdessen passieren?"/></div>
+        <div class="section">Example</div>
+        <div class="field-wrap"><textarea class="fld" id="meta-ex" spellcheck="true"></textarea></div>
+        <div class="section">Optional Tech</div>
+        <div class="field-wrap"><textarea class="fld" id="meta-tech" spellcheck="true"></textarea></div>
+        <div class="g3" style="margin-top:8px">
+          <div class="field-wrap"><div class="field-label">ds_dm_hotelids?</div><div class="yn-row" id="yn-meta-h"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Hotelcenter?</div><div class="yn-row" id="yn-meta-gc"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Campaign?</div><div class="yn-row" id="yn-meta-c"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">CPC budget?</div><div class="yn-row" id="yn-meta-cpc"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+        </div>
+        <hr class="div"/>
+        <div class="section">Result for Customer</div>
+        <div class="field-wrap"><textarea class="fld" id="meta-res" spellcheck="true"></textarea></div>
+        <div class="section">Status</div>
+        <div class="g3">
+          <div class="field-wrap"><div class="field-label">Global?</div><div class="yn-row" id="yn-meta-g"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Finances?</div><div class="yn-row" id="yn-meta-f"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Availability?</div><div class="yn-row" id="yn-meta-a"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Escalates?</div><div class="yn-row" id="yn-meta-e"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Security?</div><div class="yn-row" id="yn-meta-s"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+        </div>
+        <div class="section">Ticket Owners</div>
+        <div class="g2">
+          <div class="field-wrap"><div class="field-label">1st Level</div><input type="text" id="meta-1st"/></div>
+          <div class="field-wrap"><div class="field-label">HubSpot Ticket-ID</div><input type="text" id="meta-hsid"/></div>
+        </div>
+        <div class="action-row">
+          <button class="btn-create" onclick="buildTicket('meta')">Ticket erstellen ↗</button>
+          <button class="btn-clear" onclick="clr('meta')">Leeren</button>
+        </div>
+        <div class="warn-banner" id="wb-meta"></div>
+      </div>
+
+      <!-- ═══ BUGFIX ═══ -->
+      <div class="tc" id="tc-bug">
+        <div class="section">Context</div>
+        <div class="g2">
+          <div class="field-wrap"><div class="field-label">KNR / Service Level</div><input type="text" id="bug-knr"/><div class="warn-lbl" id="wl-bug-knr">⚠ Leer</div></div>
+          <div class="field-wrap"><div class="field-label">Categorization</div><input type="text" id="bug-cat" placeholder="coding / system / user"/></div>
+          <div class="field-wrap"><div class="field-label">Modules / Environment</div><input type="text" id="bug-env"/></div>
+          <div class="field-wrap"><div class="field-label">Bearbeiter (2nd Level)</div><input type="text" id="bug-agent" placeholder="z.B. Rahm"/></div>
+        </div>
+        <div class="section">Problem + Reproduzierbarkeit</div>
+        <div class="field-wrap"><textarea class="fld" id="bug-prob" spellcheck="true"></textarea><div class="warn-lbl" id="wl-bug-prob">⚠ Leer</div></div>
+        <div class="section">Expectation</div>
+        <div class="field-wrap"><input type="text" id="bug-exp" placeholder="Was sollte stattdessen passieren?"/></div>
+        <div class="section">Example & Recreation</div>
+        <div class="field-wrap"><textarea class="fld" id="bug-ex" spellcheck="true"></textarea></div>
+        <div class="section">Optional Tech</div>
+        <div class="field-wrap"><textarea class="fld" id="bug-tech" spellcheck="true"></textarea></div>
+        <hr class="div"/>
+        <div class="section">Result for Customer</div>
+        <div class="field-wrap"><textarea class="fld" id="bug-res" spellcheck="true"></textarea></div>
+        <div class="section">Status</div>
+        <div class="g3">
+          <div class="field-wrap"><div class="field-label">Global?</div><div class="yn-row" id="yn-bug-g"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Finances?</div><div class="yn-row" id="yn-bug-f"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Availability?</div><div class="yn-row" id="yn-bug-a"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Escalates?</div><div class="yn-row" id="yn-bug-e"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Security?</div><div class="yn-row" id="yn-bug-s"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+        </div>
+        <div class="section">Ticket Owners</div>
+        <div class="g2">
+          <div class="field-wrap"><div class="field-label">1st Level</div><input type="text" id="bug-1st"/></div>
+          <div class="field-wrap"><div class="field-label">HubSpot Ticket-ID</div><input type="text" id="bug-hsid"/></div>
+        </div>
+        <div class="action-row">
+          <button class="btn-create" onclick="buildTicket('bug')">Ticket erstellen ↗</button>
+          <button class="btn-clear" onclick="clr('bug')">Leeren</button>
+        </div>
+        <div class="warn-banner" id="wb-bug"></div>
+      </div>
+
+      <!-- ═══ COCKPIT ═══ -->
+      <div class="tc" id="tc-cockpit">
+        <div class="section">Context</div>
+        <div class="g2">
+          <div class="field-wrap"><div class="field-label">KNR / Service Level</div><input type="text" id="cp-knr"/><div class="warn-lbl" id="wl-cp-knr">⚠ Leer</div></div>
+          <div class="field-wrap"><div class="field-label">Bearbeiter (2nd Level)</div><input type="text" id="cp-agent" placeholder="z.B. Rahm"/></div>
+          <div class="field-wrap span2"><div class="field-label">Modules / Environment</div><input type="text" id="cp-env" placeholder="z.B. Cockpit Reservierungsliste, Migration..."/></div>
+          <div class="field-wrap span2"><div class="field-label">HubSpot Referenz-Link</div><input type="text" id="cp-hsref" placeholder="https://app-eu1.hubspot.com/..."/></div>
+        </div>
+        <div class="section">Problem</div>
+        <div class="field-wrap"><textarea class="fld" id="cp-prob" spellcheck="true"></textarea><div class="warn-lbl" id="wl-cp-prob">⚠ Leer</div></div>
+        <div class="section">Expectation</div>
+        <div class="field-wrap"><input type="text" id="cp-exp" placeholder="Was sollte stattdessen passieren?"/><div class="warn-lbl" id="wl-cp-exp">⚠ Leer</div></div>
+        <div class="section">Example</div>
+        <div class="field-wrap"><textarea class="fld" id="cp-ex" spellcheck="true"></textarea></div>
+        <div class="section">Optional Tech</div>
+        <div class="field-wrap"><textarea class="fld" id="cp-tech" spellcheck="true"></textarea></div>
+        <hr class="div"/>
+        <div class="section">Result for Customer</div>
+        <div class="field-wrap"><textarea class="fld" id="cp-res" spellcheck="true"></textarea></div>
+        <div class="section">Status</div>
+        <div class="g3">
+          <div class="field-wrap"><div class="field-label">Global?</div><div class="yn-row" id="yn-cp-g"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Finances?</div><div class="yn-row" id="yn-cp-f"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Availability?</div><div class="yn-row" id="yn-cp-a"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Escalates?</div><div class="yn-row" id="yn-cp-e"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Security?</div><div class="yn-row" id="yn-cp-s"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+        </div>
+        <div class="section">Ticket Owners</div>
+        <div class="g2">
+          <div class="field-wrap"><div class="field-label">1st Level / Assign to</div><input type="text" id="cp-1st"/><div class="warn-lbl" id="wl-cp-1st">⚠ Leer</div></div>
+          <div class="field-wrap"><div class="field-label">HubSpot Ticket-ID</div><input type="text" id="cp-hsid"/></div>
+        </div>
+        <div class="action-row">
+          <button class="btn-create" onclick="buildTicket('cockpit')">Ticket erstellen ↗</button>
+          <button class="btn-clear" onclick="clr('cockpit')">Leeren</button>
+        </div>
+        <div class="warn-banner" id="wb-cockpit"></div>
+      </div>
+
+      <!-- ═══ NEU ═══ -->
+      <div class="tc" id="tc-neu">
+        <div class="section">Context</div>
+        <div class="g2">
+          <div class="field-wrap"><div class="field-label">KNR / Service Level</div><input type="text" id="neu-knr"/></div>
+          <div class="field-wrap"><div class="field-label">Bearbeiter (2nd Level)</div><input type="text" id="neu-agent" placeholder="z.B. Rahm"/></div>
+          <div class="field-wrap span2"><div class="field-label">Modules / Environment</div><input type="text" id="neu-env"/></div>
+        </div>
+        <div class="section">Problem</div>
+        <div class="field-wrap"><textarea class="fld" id="neu-prob" spellcheck="true"></textarea></div>
+        <div class="section">Expectation</div>
+        <div class="field-wrap"><input type="text" id="neu-exp" placeholder="Was sollte stattdessen passieren?"/></div>
+        <div class="section">Example</div>
+        <div class="field-wrap"><textarea class="fld" id="neu-ex" spellcheck="true"></textarea></div>
+        <div class="section">Optional Tech</div>
+        <div class="field-wrap"><textarea class="fld" id="neu-tech" spellcheck="true"></textarea></div>
+        <hr class="div"/>
+        <div class="section">Result for Customer</div>
+        <div class="field-wrap"><textarea class="fld" id="neu-res" spellcheck="true"></textarea></div>
+        <div class="section">Status</div>
+        <div class="g3">
+          <div class="field-wrap"><div class="field-label">Global?</div><div class="yn-row" id="yn-neu-g"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Finances?</div><div class="yn-row" id="yn-neu-f"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Availability?</div><div class="yn-row" id="yn-neu-a"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Escalates?</div><div class="yn-row" id="yn-neu-e"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+          <div class="field-wrap"><div class="field-label">Security?</div><div class="yn-row" id="yn-neu-s"><button onclick="yn(this)">Yes</button><button onclick="yn(this)">No</button><button onclick="yn(this)">Unknown</button></div></div>
+        </div>
+        <div class="section">Ticket Owners</div>
+        <div class="g2">
+          <div class="field-wrap"><div class="field-label">1st Level</div><input type="text" id="neu-1st"/></div>
+          <div class="field-wrap"><div class="field-label">HubSpot Ticket-ID</div><input type="text" id="neu-hsid"/></div>
+        </div>
+        <div class="action-row">
+          <button class="btn-create" onclick="buildTicket('neu')">Ticket erstellen ↗</button>
+          <button class="btn-clear" onclick="clr('neu')">Leeren</button>
+        </div>
+        <div class="warn-banner" id="wb-neu"></div>
+      </div>
+
     </div>
   </div>
-  <div class="reveal">
-    <form class="contact-form" onsubmit="handleSubmit(event)">
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label" for="fname">Vorname</label>
-          <input class="form-input" type="text" id="fname" placeholder="Maria">
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="lname">Nachname</label>
-          <input class="form-input" type="text" id="lname" placeholder="Müller">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="email">E-Mail</label>
-        <input class="form-input" type="email" id="email" placeholder="ihre@email.de">
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label" for="checkin">Anreise</label>
-          <input class="form-input" type="date" id="checkin">
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="checkout">Abreise</label>
-          <input class="form-input" type="date" id="checkout">
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="zimmer">Zimmertyp</label>
-        <select class="form-select" id="zimmer">
-          <option value="">Bitte wählen …</option>
-          <option>Deluxe Zimmer</option>
-          <option>Cave Suite</option>
-          <option>La Grand Suite</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label" for="msg">Ihre Nachricht</label>
-        <textarea class="form-textarea" id="msg" placeholder="Besondere Wünsche, Anliegen …"></textarea>
-      </div>
-      <button type="submit" class="btn-submit">Anfrage senden</button>
-    </form>
-  </div>
-</section>
+</div>
 
-<footer>
-  <a href="#start" class="footer-logo">Rodriguez Hotels</a>
-  <p>© 2025 Rodriguez Hotels · Alle Rechte vorbehalten</p>
-  <p>Impressum · Datenschutz</p>
-</footer>
+<!-- Modal -->
+<div id="modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span>3rd Level Ticket (Dev English)</span>
+      <div class="modal-btns">
+        <button class="btn-copy" id="copy-btn" onclick="copyTicket()">Kopieren</button>
+        <button class="btn-close" onclick="document.getElementById('modal').classList.remove('open')">✕ Schließen</button>
+      </div>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
 
 <script>
-  function toggleNav() {
-    const nav = document.getElementById('navLinks');
-    const btn = document.getElementById('hamburger');
-    nav.classList.toggle('open');
-    btn.classList.toggle('open');
-  }
-  function closeNav() {
-    document.getElementById('navLinks').classList.remove('open');
-    document.getElementById('hamburger').classList.remove('open');
+const TABS = ['pms','pmsres','ob','pay','ota','one','meta','bug','cockpit','neu'];
+
+function sw(n) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', TABS[i]===n));
+  document.querySelectorAll('.tc').forEach(t => t.classList.remove('active'));
+  document.getElementById('tc-'+n).classList.add('active');
+  document.getElementById('form-area').scrollTop = 0;
+}
+
+function v(id) { return (document.getElementById(id)?.value||'').trim(); }
+function vOr(id) { return v(id) || '(not provided)'; }
+function yv(id) { const s=document.querySelector('#'+id+' button.sel'); return s?s.textContent:'(not provided)'; }
+
+function sf(id, val) {
+  const el = document.getElementById(id);
+  if (!el || !val || !val.trim()) return;
+  el.value = val.trim();
+  el.classList.add('autofilled');
+  const wl = document.getElementById('wl-'+id);
+  if (wl) { wl.classList.remove('show'); el.classList.remove('warn'); }
+}
+
+function yn(btn) {
+  btn.parentElement.querySelectorAll('button').forEach(b => { b.classList.remove('sel'); b.style.cssText=''; });
+  btn.classList.add('sel');
+  btn.style.setProperty('background','#ffffff','important');
+  btn.style.setProperty('color','#000000','important');
+  btn.style.setProperty('border','2px solid #ffffff','important');
+  btn.style.setProperty('font-weight','700','important');
+}
+
+function setYn(groupId, val) {
+  const div = document.getElementById(groupId);
+  if (!div) return;
+  div.querySelectorAll('button').forEach(b => {
+    b.classList.remove('sel'); b.style.cssText='';
+    if (b.textContent.trim() === val) {
+      b.classList.add('sel');
+      b.style.setProperty('background','#ffffff','important');
+      b.style.setProperty('color','#000000','important');
+      b.style.setProperty('border','2px solid #ffffff','important');
+      b.style.setProperty('font-weight','700','important');
+    }
+  });
+}
+
+function clr(t) {
+  document.querySelectorAll('#tc-'+t+' input[type=text], #tc-'+t+' textarea').forEach(el => {
+    el.value=''; el.classList.remove('warn','autofilled');
+  });
+  document.querySelectorAll('#tc-'+t+' .warn-lbl').forEach(l => l.classList.remove('show'));
+  document.querySelectorAll('#tc-'+t+' .yn-row button').forEach(b => { b.classList.remove('sel'); b.style.cssText=''; });
+  const wb = document.getElementById('wb-'+t);
+  if (wb) { wb.className='warn-banner'; wb.innerHTML=''; }
+}
+
+// ─── AUTO-FILL ────────────────────────────────────────────────────────────────
+function autoFill() {
+  const ref = (document.getElementById('ref-ticket').value||'').trim();
+  const statusEl = document.getElementById('fill-status');
+  const errorEl = document.getElementById('fill-error');
+  if (!ref) { errorEl.textContent='⚠ Bitte zuerst Original-Ticket einfügen.'; return; }
+  errorEl.textContent=''; statusEl.textContent='';
+
+  // ── 1. KNR ──
+  const knrM = ref.match(/(?:KNR|KNr)[:\s#]*([0-9]{4,6})/i) || ref.match(/\b([0-9]{4,6})\b/);
+  const knr = knrM ? knrM[1] : '';
+
+  // ── 2. Service Level ──
+  const slM = ref.match(/\b(SLB|SL-B|SLA|SL-A|Key Account|Boarding|Service)\b/i);
+  const sl = slM ? slM[1].trim() : '';
+  const knrSl = [knr, sl].filter(Boolean).join(' — ');
+
+  // ── 3. Detect tab type ──
+  const r = ref.toLowerCase();
+  let type = 'cockpit';
+  if (r.includes('overbooking') || r.includes('überbuchung')) type='ob';
+  else if (r.match(/payment|zahlung|datatrans|stripe|nexi|adyen|firstcash|saferpay/)) type='pay';
+  else if (r.match(/pms/) && r.match(/reservation|falsche buchung|buchung falsch/)) type='pmsres';
+  else if (r.includes('pms')) type='pms';
+  else if (r.match(/\bota\b|booking\.com|expedia|hrs\b|check24/)) type='ota';
+  else if (r.match(/reservation\.one|reservations\.one|one ibe|one add|one product|one tracking/)) type='one';
+  else if (r.match(/google hotel|meta search|trivago|kayak/)) type='meta';
+  else if (r.match(/bugfix|global.*fehler|fehler.*alle.*kunden/)) type='bug';
+  else if (r.match(/cockpit|migration|office.*v4|office v/)) type='cockpit';
+  sw(type);
+
+  // ── 4. Prefix map ──
+  const px = {pms:'pms',pmsres:'pr',ob:'ob',pay:'pay',ota:'ota',one:'one',meta:'meta',bug:'bug',cockpit:'cp',neu:'neu'}[type];
+
+  // ── 5. Fill KNR ──
+  if (knrSl) sf(px+'-knr', knrSl);
+
+  // ── 6. 1st Level / Assign-to ──
+  const qM = ref.match(/(?:an wen[^:\n]*:|queue[^:\n]*:|assign[^:\n]*:)\s*\n?\s*([A-ZÄÖÜ][a-zäöüß]+(?:\s*[-\/]\s*[A-Za-zÄÖÜäöüß\s]+)?)/i);
+  if (qM) sf(px+'-1st', qM[1].trim());
+
+  // ── 7. Payment provider ──
+  if (type==='pay') {
+    const provM = ref.match(/\b(datatrans|stripe|nexi|adyen|firstcash|saferpay|paypal|concardis|computop|heidelpay|unzer)\b/i);
+    if (provM) sf('pay-prov', provM[1]);
   }
 
-  const reveals = document.querySelectorAll('.reveal');
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
-  }, { threshold: 0.12 });
-  reveals.forEach(r => observer.observe(r));
-
-  function handleSubmit(e) {
-    e.preventDefault();
-    const btn = e.target.querySelector('.btn-submit');
-    btn.textContent = 'Anfrage gesendet ✓';
-    btn.style.background = '#2E6B3E';
-    btn.style.borderColor = '#2E6B3E';
-    btn.disabled = true;
+  // ── 8. ONE link ──
+  if (type==='one') {
+    const lM = ref.match(/https:\/\/(?:reservation|reservations)\.one\.dirs21\.de\/[^\s)>\]"']*/i);
+    if (lM) sf('one-link', lM[0]);
+    const uuidM = ref.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+    if (uuidM) sf('one-uuid', uuidM[0]);
+    const bidM = ref.match(/#?([0-9]{6,12})/);
+    if (bidM) sf('one-bid', bidM[1]);
+    const prodM = ref.match(/\b(ibe|add-ons?|add ons?|tracking|loyalty|one booking|checkout)\b/i);
+    if (prodM) sf('one-prod', prodM[0].trim());
   }
+
+  // ── 9. Cockpit: HubSpot link ──
+  if (type==='cockpit') {
+    const hsM = ref.match(/https:\/\/app-eu1\.hubspot\.com\/[^\s)>\]"']*/i);
+    if (hsM) sf('cp-hsref', hsM[0]);
+    const envM = ref.match(/\b(migration|reservierungsliste|raten|zahlungen|gästebindung|loyalty|design editor|smart rule|group|account)\b/i);
+    if (envM) sf('cp-env', 'Cockpit — '+envM[0].charAt(0).toUpperCase()+envM[0].slice(1));
+  }
+
+  // ── 10. BID / TOCC ──
+  const toccM = ref.match(/TOCC[#\s]*([0-9]{6,12})/i);
+  const bidM2 = ref.match(/BID[#\s]*([0-9]{5,12})/i);
+  if (type==='ob') {
+    if (bidM2) sf('ob-bid', bidM2[1]);
+  }
+
+  // ── 11. Cockpit link → example ──
+  const cpLinkM = ref.match(/https:\/\/cockpit\.dirs21\.de\/[^\s)>\]"']*/i);
+  if (cpLinkM && type==='cockpit') sf('cp-ex', cpLinkM[0]);
+
+  // ── 12. OTA name ──
+  if (type==='ota') {
+    const otaM = ref.match(/\b(booking\.com|expedia|hrs|check24|agoda|airbnb|google hotel|trivago)\b/i);
+    if (otaM) sf('ota-name', otaM[0]);
+  }
+
+  // ── 13. Error messages → tech ──
+  const errM = ref.match(/(?:fehlermeldung|error message|error code|status.*400|status.*500)[^\n]*\n([^\n]{10,})/i);
+  if (errM) {
+    const techId = px+'-tech';
+    if (document.getElementById(techId)) sf(techId, errM[1].trim());
+  }
+
+  // ── 14. Status detection ──
+  const statMap = {g:'global',f:'finan',a:'avail',e:'escal',s:'secur'};
+  // Global
+  if (r.match(/alle kunden|globaler fehler|betrifft alle|mehrere kunden|habe mehrere/)) setYn('yn-'+px+'-g','Yes');
+  else if (r.match(/nur dieser|nur diesen|isolated|only this/)) setYn('yn-'+px+'-g','No');
+  else setYn('yn-'+px+'-g','Unknown');
+  // Finances
+  if (r.match(/verlust|umsatz|zahlung nicht möglich|kann nicht buchen|no.*booking|payment.*fail|abbuchung nicht/)) setYn('yn-'+px+'-f','Yes');
+  else if (r.match(/kein.*verlust|no.*revenue/)) setYn('yn-'+px+'-f','No');
+  else setYn('yn-'+px+'-f','Unknown');
+  // Availability
+  if (r.match(/nicht buchbar|kann nicht gebucht|booking.*not possible|no.*book/)) setYn('yn-'+px+'-a','No');
+  else setYn('yn-'+px+'-a','Yes');
+  // Escalates
+  if (r.match(/eskaliert|dringend|urgent|asap|beschwerde/)) setYn('yn-'+px+'-e','Yes');
+  else setYn('yn-'+px+'-e','No');
+  // Security
+  setYn('yn-'+px+'-s','Unknown');
+
+  statusEl.textContent = '✓ Erkannt: KNR ' + (knr||'?') + ' | Tab: ' + type.toUpperCase() + ' | Bitte Felder prüfen & ergänzen';
+  setTimeout(()=>statusEl.textContent='', 6000);
+}
+
+// ─── TICKET TEXT BUILDER ─────────────────────────────────────────────────────
+function st(p) {
+  return '\n\n**Status:**\n' +
+    '* Global — more than one customer affected?: '+yv('yn-'+p+'-g')+'\n'+
+    '* Finances — direct loss of revenue?: '+yv('yn-'+p+'-f')+'\n'+
+    '* Availability / Bookable?: '+yv('yn-'+p+'-a')+'\n'+
+    '* Customer escalates / threatens?: '+yv('yn-'+p+'-e')+'\n'+
+    '* Security / rights / reputation issues?: '+yv('yn-'+p+'-s');
+}
+
+function bt(type) {
+  const m = {
+    pms: () => `**Ticket Name:** PMS | KNR ${vOr('pms-knr')} | ${v('pms-prob').split('\n')[0].substring(0,60)||'(see problem)'}
+
+**What kind of case is it?** PMS Error
+
+**Context:**
+* KNR: ${vOr('pms-knr')}
+* PMS Version: ${vOr('pms-ver')}
+* Environment: ${vOr('pms-env')}
+* 2nd Level: ${vOr('pms-agent')}
+
+**Problem:**
+* ${vOr('pms-prob')}
+
+**Expectation:**
+* What should happen: ${vOr('pms-exp')}
+* Value in PMS: ${vOr('pms-vpms')}
+* Value in Cockpit: ${vOr('pms-vcockpit')}
+
+**Example:**
+* ${vOr('pms-ex')}
+
+**Technical Details:**
+* ${vOr('pms-tech')}
+
+**Result for Customer:**
+* ${vOr('pms-res')}${st('pms')}
+
+**Ticket Owners:**
+* 1st Level: ${vOr('pms-1st')}
+* 2nd Level: ${vOr('pms-agent')}`,
+
+    pmsres: () => `**Ticket Name:** PMS Incorrect Reservation | KNR ${vOr('pr-knr')} | ${v('pr-prob').split('\n')[0].substring(0,50)||'(see problem)'}
+
+**What kind of case is it?** PMS Incorrect Reservation
+
+**Context:**
+* KNR: ${vOr('pr-knr')}
+* PMS Version: ${vOr('pr-ver')}
+* Environment: ${vOr('pr-env')}
+* 2nd Level: ${vOr('pr-agent')}
+
+**Problem:**
+* ${vOr('pr-prob')}
+
+**Expectation:**
+* Value in PMS: ${vOr('pr-vpms')}
+* Value in Cockpit: ${vOr('pr-vcockpit')}
+* What would be correct: ${vOr('pr-correct')}
+* What is wrong in PMS: ${vOr('pr-wrong')}
+* Reservation sent to PMS?: ${yv('yn-pr-sent')}
+* PMS confirmed?: ${yv('yn-pr-conf')}
+
+**Example:**
+* ${vOr('pr-ex')}
+
+**Technical Details:**
+* ${vOr('pr-tech')}
+
+**Result for Customer:**
+* ${vOr('pr-res')}${st('pr')}
+
+**Ticket Owners:**
+* 1st Level: ${vOr('pr-1st')}
+* 2nd Level: ${vOr('pr-agent')}`,
+
+    ob: () => `**Ticket Name:** Overbooking | KNR ${vOr('ob-knr')} | BID ${vOr('ob-bid')}
+
+**What kind of case is it?** Overbooking
+
+**Context:**
+* KNR: ${vOr('ob-knr')}
+* Environment: ${vOr('ob-env')}
+* 2nd Level: ${vOr('ob-agent')}
+
+**Overbooking Details:**
+* Source: ${vOr('ob-src')}
+* Overbooked BID: ${vOr('ob-obid')}
+* When: ${vOr('ob-when')}
+* Affected Room: ${vOr('ob-room')}
+* Date: ${vOr('ob-date')}
+* Availability = -1?: ${yv('yn-ob-neg')}
+* Logging Link: ${vOr('ob-log')}
+
+**Technical Details:**
+* ${vOr('ob-tech')}
+
+**Result for Customer:**
+* ${vOr('ob-res')}${st('ob')}
+
+**Ticket Owners:**
+* 1st Level: ${vOr('ob-1st')}
+* 2nd Level: ${vOr('ob-agent')}`,
+
+    pay: () => `**Ticket Name:** Payment | KNR ${vOr('pay-knr')} | ${vOr('pay-prov')}
+
+**What kind of case is it?** Payment Error
+
+**Context:**
+* KNR: ${vOr('pay-knr')}
+* Payment Provider: ${vOr('pay-prov')}
+* Environment: ${vOr('pay-env')}
+* Payment & Cancellation Condition: ${vOr('pay-cond')}
+* Affected Rate: ${vOr('pay-rate')}
+* 2nd Level: ${vOr('pay-agent')}
+
+**Problem:**
+* ${vOr('pay-prob')}
+
+**Expectation:**
+* ${vOr('pay-exp')}
+
+**Example:**
+* ${vOr('pay-ex')}
+
+**Technical Details:**
+* ${vOr('pay-tech')}
+* Credentials proved?: ${yv('yn-pay-cred')}
+* Rate settings proved?: ${yv('yn-pay-rset')}
+
+**Result for Customer:**
+* ${vOr('pay-res')}${st('pay')}
+
+**Ticket Owners:**
+* 1st Level: ${vOr('pay-1st')}
+* 2nd Level: ${vOr('pay-agent')}`,
+
+    ota: () => `**Ticket Name:** OTA | KNR ${vOr('ota-knr')} | ${vOr('ota-name')}
+
+**What kind of case is it?** OTA Discrepancy
+
+**Context:**
+* KNR: ${vOr('ota-knr')}
+* OTA: ${vOr('ota-name')}
+* Environment: ${vOr('ota-env')}
+* 2nd Level: ${vOr('ota-agent')}
+
+**Problem:**
+* ${vOr('ota-prob')}
+
+**Expectation:**
+* What should happen: ${vOr('ota-exp')}
+* Value in OTA: ${vOr('ota-vota')}
+* Value in DIRS21: ${vOr('ota-vdirs')}
+
+**Example:**
+* ${vOr('ota-ex')}
+
+**Technical Details:**
+* ${vOr('ota-tech')}
+
+**Result for Customer:**
+* ${vOr('ota-res')}${st('ota')}
+
+**Ticket Owners:**
+* 1st Level: ${vOr('ota-1st')}
+* 2nd Level: ${vOr('ota-agent')}`,
+
+    one: () => `**Ticket Name:** ONE | KNR ${vOr('one-knr')} | ${vOr('one-prod')}
+
+**What kind of case is it?** Error in ONE
+
+**Context:**
+* KNR: ${vOr('one-knr')}
+* ONE Product: ${vOr('one-prod')}
+* Environment: ${vOr('one-env')}
+* Direct-Link: ${vOr('one-link')}
+* BID / TOCC ID: ${vOr('one-bid')}
+* UUID: ${vOr('one-uuid')}
+* 2nd Level: ${vOr('one-agent')}
+
+**Problem:**
+* ${vOr('one-prob')}
+
+**Expectation:**
+* ${vOr('one-exp')}
+
+**Example:**
+* ${vOr('one-ex')}
+
+**Technical Details:**
+* ${vOr('one-tech')}
+
+**Result for Customer:**
+* ${vOr('one-res')}${st('one')}
+
+**Ticket Owners:**
+* 1st Level: ${vOr('one-1st')}
+* 2nd Level: ${vOr('one-agent')}`,
+
+    meta: () => `**Ticket Name:** Meta Issue | KNR ${vOr('meta-knr')} | ${v('meta-prob').split('\n')[0].substring(0,50)||'(see problem)'}
+
+**What kind of case is it?** Meta Issue
+
+**Context:**
+* KNR: ${vOr('meta-knr')}
+* Environment: ${vOr('meta-env')}
+* Meta-Source: ${vOr('meta-src')}
+* 2nd Level: ${vOr('meta-agent')}
+
+**Problem:**
+* ${vOr('meta-prob')}
+
+**Expectation:**
+* ${vOr('meta-exp')}
+
+**Example:**
+* ${vOr('meta-ex')}
+
+**Technical Details:**
+* ${vOr('meta-tech')}
+* ds_dm_hotelids?: ${yv('yn-meta-h')}
+* Google Hotelcenter?: ${yv('yn-meta-gc')}
+* Campaign linked?: ${yv('yn-meta-c')}
+* CPC budget loaded?: ${yv('yn-meta-cpc')}
+
+**Result for Customer:**
+* ${vOr('meta-res')}${st('meta')}
+
+**Ticket Owners:**
+* 1st Level: ${vOr('meta-1st')}
+* 2nd Level: ${vOr('meta-agent')}`,
+
+    bug: () => `**Ticket Name:** Bugfix | KNR ${vOr('bug-knr')} | ${v('bug-prob').split('\n')[0].substring(0,50)||'(see problem)'}
+
+**What kind of case is it?** Bug
+
+**Context:**
+* KNR: ${vOr('bug-knr')}
+* Categorization: ${vOr('bug-cat')}
+* Environment: ${vOr('bug-env')}
+* 2nd Level: ${vOr('bug-agent')}
+
+**Problem:**
+* ${vOr('bug-prob')}
+
+**Expectation:**
+* ${vOr('bug-exp')}
+
+**Example & Recreation:**
+* ${vOr('bug-ex')}
+
+**Technical Details:**
+* ${vOr('bug-tech')}
+
+**Result for Customer:**
+* ${vOr('bug-res')}${st('bug')}
+
+**Ticket Owners:**
+* 1st Level: ${vOr('bug-1st')}
+* 2nd Level: ${vOr('bug-agent')}`,
+
+    cockpit: () => `**Ticket Name:** KNR ${vOr('cp-knr')} | Cockpit | ${v('cp-prob').split('\n')[0].substring(0,60)||'(see problem)'}
+
+**What kind of case is it?** Cockpit Issue
+
+**Context:**
+* KNR: ${vOr('cp-knr')}
+* Environment: ${vOr('cp-env')}
+* HubSpot Reference: ${vOr('cp-hsref')}
+* 2nd Level: ${vOr('cp-agent')}
+
+**Problem:**
+* ${vOr('cp-prob')}
+
+**Expectation:**
+* ${vOr('cp-exp')}
+
+**Example:**
+* ${vOr('cp-ex')}
+
+**Technical Details:**
+* ${vOr('cp-tech')}
+
+**Result for Customer:**
+* ${vOr('cp-res')}${st('cp')}
+
+**Ticket Owners:**
+* 1st Level: ${vOr('cp-1st')}
+* 2nd Level: ${vOr('cp-agent')}`,
+
+    neu: () => `**Ticket Name:** KNR ${vOr('neu-knr')} | ${v('neu-prob').split('\n')[0].substring(0,50)||'(see problem)'}
+
+**Context:**
+* KNR: ${vOr('neu-knr')}
+* Environment: ${vOr('neu-env')}
+* 2nd Level: ${vOr('neu-agent')}
+
+**Problem:**
+* ${vOr('neu-prob')}
+
+**Expectation:**
+* ${vOr('neu-exp')}
+
+**Example:**
+* ${vOr('neu-ex')}
+
+**Technical Details:**
+* ${vOr('neu-tech')}
+
+**Result for Customer:**
+* ${vOr('neu-res')}${st('neu')}
+
+**Ticket Owners:**
+* 1st Level: ${vOr('neu-1st')}
+* 2nd Level: ${vOr('neu-agent')}`
+  };
+  return m[type] ? m[type]() : '';
+}
+
+// ─── VALIDATE & BUILD ─────────────────────────────────────────────────────────
+function buildTicket(type) {
+  // Validate required fields
+  const reqMap = {
+    pms:['pms-knr','pms-prob','pms-exp','pms-res','pms-1st'],
+    pmsres:['pr-knr','pr-prob'],
+    ob:['ob-knr'],
+    pay:['pay-knr','pay-prov','pay-prob','pay-exp'],
+    ota:['ota-knr','ota-prob'],
+    one:['one-knr','one-prob','one-exp'],
+    meta:['meta-knr'],
+    bug:['bug-knr','bug-prob'],
+    cockpit:['cp-knr','cp-prob','cp-exp','cp-1st'],
+    neu:['neu-knr']
+  };
+  const req = reqMap[type]||[];
+  const empty = req.filter(id => !v(id));
+  empty.forEach(id => {
+    const el=document.getElementById(id);
+    if(el){el.classList.add('warn');el.scrollIntoView({behavior:'smooth',block:'nearest'});}
+    const wl=document.getElementById('wl-'+id);
+    if(wl) wl.classList.add('show');
+  });
+  const wb = document.getElementById('wb-'+type);
+  if (empty.length>0) {
+    wb.className='warn-banner show';
+    wb.innerHTML='⚠ <strong>'+empty.length+' Pflichtfeld(er) leer</strong> — bitte ausfüllen. Ticket wird trotzdem erzeugt.';
+  } else {
+    wb.className='warn-banner';
+  }
+
+  const rawText = bt(type);
+  window._ticket = rawText;
+
+  // Show modal immediately with raw text + loading indicator
+  document.getElementById('modal-body').textContent = rawText;
+  document.getElementById('modal').classList.add('open');
+  document.getElementById('copy-btn').textContent='Kopieren';
+  document.getElementById('copy-btn').style.background='#6366f1';
+
+  // Translate via Claude API
+  translateTicket(rawText);
+}
+
+async function translateTicket(rawText) {
+  const modalBody = document.getElementById('modal-body');
+  const copyBtn = document.getElementById('copy-btn');
+
+  // Show loading state
+  copyBtn.textContent = '⏳ Übersetze...';
+  copyBtn.style.background = '#555';
+  copyBtn.disabled = true;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1500,
+        messages: [{
+          role: 'user',
+          content: `You are a DIRS21 3rd Level Support specialist. Translate and rewrite the following ticket into professional developer English. 
+
+RULES:
+- Translate ALL text to English — no German, no mixed language
+- Keep all technical values as-is: URLs, IDs, UUIDs, BIDs, numbers, links
+- Keep all bold markdown formatting (**text**)
+- Keep the exact same structure and sections
+- Make the Problem, Expectation, Example and Result for Customer sections concise and technical
+- Do NOT add or remove sections
+- Return ONLY the translated ticket text, nothing else
+
+Ticket to translate:
+${rawText}`
+        }]
+      })
+    });
+
+    if (!response.ok) throw new Error('API ' + response.status);
+    const data = await response.json();
+    const translated = data.content.map(i => i.text || '').join('').trim();
+
+    window._ticket = translated;
+    modalBody.textContent = translated;
+    copyBtn.textContent = 'Kopieren';
+    copyBtn.style.background = '#6366f1';
+    copyBtn.disabled = false;
+
+  } catch (err) {
+    // API failed — keep raw text, just reset button
+    copyBtn.textContent = 'Kopieren';
+    copyBtn.style.background = '#6366f1';
+    copyBtn.disabled = false;
+    // Show small hint
+    const hint = document.createElement('div');
+    hint.style.cssText = 'font-size:11px;color:#f59e0b;margin-top:8px;padding:6px 10px;background:#2a1f00;border-radius:4px';
+    hint.textContent = '⚠ Auto-Übersetzung nicht verfügbar (nur auf GitHub Pages). Ticket in Originalsprache angezeigt.';
+    modalBody.appendChild(hint);
+  }
+}
+
+function copyTicket() {
+  navigator.clipboard.writeText(window._ticket||'').then(()=>{
+    const b=document.getElementById('copy-btn');
+    b.textContent='Kopiert ✓'; b.style.background='#16a34a';
+    setTimeout(()=>{b.textContent='Kopieren';b.style.background='#6366f1';},2500);
+  });
+}
+
+// Close modal on backdrop click
+document.getElementById('modal').addEventListener('click',function(e){
+  if(e.target===this) this.classList.remove('open');
+});
+
+// Clear warn on input
+document.addEventListener('input',function(e){
+  if(e.target.matches('input[type=text],textarea')){
+    e.target.classList.remove('warn');
+    const wl=document.getElementById('wl-'+e.target.id);
+    if(wl) wl.classList.remove('show');
+  }
+});
 </script>
 </body>
 </html>
